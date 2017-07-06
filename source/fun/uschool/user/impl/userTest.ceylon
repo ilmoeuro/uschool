@@ -30,8 +30,7 @@ import fun.uschool.feature.api {
     Context
 }
 import fun.uschool.feature.impl {
-    TestContextProvider,
-    testContext
+    TestContextProvider
 }
 import fun.uschool.user.api {
     Role,
@@ -94,6 +93,9 @@ import java.time {
 
 class UserTest() {
     variable ClassLoader? originalClassLoader = null;
+    function provider() {
+        return TestContextProvider(`module`);
+    }
     
 	beforeTest
 	shared void setupClassLoader() {
@@ -111,7 +113,7 @@ class UserTest() {
 	
 	test
 	shared void testCreateUser() {
-		try (value ctx = testContext(`module`)) {
+		try (value ctx = provider().NewContext()) {
 			value user = createUser(ctx);
 			user.userName = "userName";
 			user.firstName = "firstName";
@@ -128,7 +130,7 @@ class UserTest() {
 	test
 	parameters (`value positivePasswordTestCases`)
 	shared void testPasswordPositive(String password) {
-		try (value ctx = testContext(`module`)) {
+		try (value ctx = provider().NewContext()) {
 			value user = createUser(ctx);
 			user.password(password);
 			assert(user.hasPassword(password));
@@ -138,7 +140,7 @@ class UserTest() {
 	test
 	parameters (`value negativePasswordTestCases`)
 	shared void testPasswordNegative(String password1, String password2) {
-		try (value ctx = testContext(`module`)) {
+		try (value ctx = provider().NewContext()) {
 			value user = createUser(ctx);
 			user.password(password1);
 			assert(!user.hasPassword(password2));
@@ -147,12 +149,12 @@ class UserTest() {
 
     test
     shared void testUserLoader() {
-        value provider = TestContextProvider {
+        value persistentProvider = TestContextProvider {
             commit = true;
             subject = `module`;
         };
 		variable User(Context)? loadUser = null;
-		try (value ctx = provider.obtainContext()) {
+		try (value ctx = persistentProvider.NewContext()) {
 			value user = createUser(ctx);
 			user.userName = "userName";
 			user.firstName = "firstName";
@@ -160,7 +162,7 @@ class UserTest() {
 			user.role = Role.guest;
 			loadUser = userLoader(user);
         }
-        try (value ctx = provider.obtainContext()) {
+        try (value ctx = persistentProvider.NewContext()) {
             assert (exists loadUser_ = loadUser);
             value user = loadUser_(ctx);
 			assert (user.userName == "userName");
@@ -172,22 +174,22 @@ class UserTest() {
 
     test
     shared void testModified() {
-        value provider = TestContextProvider {
+        value persistentProvider = TestContextProvider {
             commit = true;
             subject = `module`;
             clock = Clock.systemUTC();
         };
 		variable User(Context)? loadUser = null;
-        try (value ctx = provider.obtainContext()) {
+        try (value ctx = persistentProvider.NewContext()) {
 			value user = createUser(ctx);
 			loadUser = userLoader(user);
 		}
-        try (value ctx = provider.obtainContext()) {
+        try (value ctx = persistentProvider.NewContext()) {
             assert (exists loadUser_ = loadUser);
             value user = loadUser_(ctx);
             user.firstName = "firstName";
         }
-        try (value ctx = provider.obtainContext()) {
+        try (value ctx = persistentProvider.NewContext()) {
             assert (exists loadUser_ = loadUser);
             value user = loadUser_(ctx);
             assert (user.modified.isAfter(user.created));

@@ -59,24 +59,10 @@ shared class AlreadyReleasedException() extends Exception(
 ) {
 }
 
-shared class ContextImpl(transaction, clock, config, onRelease) satisfies Context {
+shared abstract class ContextImpl(transaction, clock, config) satisfies Context {
     shared JTransaction transaction;
     shared Clock clock;
     shared Toml config;
-    shared Anything onRelease(Throwable? error);
-    variable Boolean released = false;
-    
-    shared actual void obtain() {
-        if (released) {
-            throw AlreadyReleasedException();
-        }
-        
-    }
-    
-    shared actual void release(Throwable? error) {
-        onRelease(error);
-        released = true;
-    }
 }
 
 shared interface ModelClassProvider {
@@ -88,10 +74,10 @@ shared interface FieldTypeProvider {
 }
 
 shared class TestContextProvider(
+    Module subject = `module`,
     Boolean commit = false,
     Toml config = Toml(),
-    Clock clock = Clock.fixed(Instant.epoch, ZoneOffset.utc),
-    Module subject = `module`
+    Clock clock = Clock.fixed(Instant.epoch, ZoneOffset.utc)
 ) {
     value modelClasses = subject
         .findServiceProviders(`ModelClassProvider`)
@@ -110,27 +96,17 @@ shared class TestContextProvider(
         .setDatabase(db)
         .newJSimpleDB();
 
-    shared Context obtainContext() {
-        value tx = jdb.createTransaction(true, automatic);
-        value ctx = ContextImpl {
-            transaction = tx;
-            clock = clock;
-            config = config;
-            onRelease = (error) {
-                if (!exists error, commit) {
-                    tx.commit();
-                } else {
-                    tx.rollback();
-                }
-            };
-        };
-        return ctx;
+    shared class NewContext() extends ContextImpl(
+        jdb.createTransaction(true, automatic),
+        outer.clock,
+        outer.config
+    ) {
+        shared actual void destroy(Throwable? error) {
+            if (!exists error, commit) {
+                transaction.commit();
+            } else {
+                transaction.rollback();
+            }
+        }
     }
-}
-
-shared Context testContext(Module modelClassesModule) {
-    value provider = TestContextProvider {
-        subject = modelClassesModule;
-    };
-    return provider.obtainContext();
 }

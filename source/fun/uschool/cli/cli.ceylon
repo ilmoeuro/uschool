@@ -42,7 +42,7 @@ import java.time {
 
 shared class Api(provider) {
     TestContextProvider provider;
-    variable value ctx = provider.obtainContext();
+    variable value ctx = provider.NewContext();
     
     shared User createUser() =>
             realCreateUser(ctx);
@@ -52,21 +52,21 @@ shared class Api(provider) {
 
     shared void commit() {
         try {
-            ctx.release(null);
+            ctx.destroy(null);
         } catch (Exception ex) {
             printError(ex);
         }
-        ctx = provider.obtainContext();
+        ctx = provider.NewContext();
         
     }
 
     shared void rollback() {
         try {
-            ctx.release(Exception());
+            ctx.destroy(Exception());
         } catch (Exception ex) {
             // do nothing
         }
-        ctx = provider.obtainContext();
+        ctx = provider.NewContext();
     }
 }
 
