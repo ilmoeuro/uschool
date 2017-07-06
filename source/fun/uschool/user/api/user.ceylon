@@ -22,11 +22,11 @@ import ceylon.language.meta.model {
     ValueConstructor
 }
 
-import fun.uschool.feature.impl {
-    ContextImpl
-}
 import fun.uschool.feature.api {
     Context
+}
+import fun.uschool.feature.impl {
+    ContextImpl
 }
 import fun.uschool.user.impl {
     UserImpl
@@ -34,6 +34,9 @@ import fun.uschool.user.impl {
 
 import java.lang {
     JString=String
+}
+import java.time {
+    Instant
 }
 
 import org.jsimpledb {
@@ -45,8 +48,10 @@ shared interface User {
     shared formal variable String firstName;
     shared formal variable String lastName;
     shared formal variable Role role;
+    shared formal Instant created;
+    shared formal Instant modified;
     
-    shared formal void setPassword(String password);
+    shared formal void password(String password);
     shared formal Boolean hasPassword(String password);
 }
 
@@ -116,7 +121,7 @@ shared User? findUserByName(Context ctx, String userName) {
     value users = tx.queryIndex(`UserImpl`, "userName", `JString`)
                     .asMap()
                     .get(javaString(userName));
-    if (!users.empty) {
+    if (exists users, !users.empty) {
         return users.first();
     } else {
         return null;

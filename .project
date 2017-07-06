@@ -17,10 +17,6 @@
 					<key>astAwareIncrementalBuilds</key>
 					<value>false</value>
 				</dictionary>
-				<dictionary>
-					<key>verbose</key>
-					<value>all</value>
-				</dictionary>
 			</arguments>
 		</buildCommand>
 	</buildSpec>

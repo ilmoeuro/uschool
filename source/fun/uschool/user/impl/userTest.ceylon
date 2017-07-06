@@ -26,12 +26,12 @@ import ceylon.test {
     parameters
 }
 
-import fun.uschool.feature.impl {
-    withTestContext,
-    TestContextProvider
-}
 import fun.uschool.feature.api {
     Context
+}
+import fun.uschool.feature.impl {
+    TestContextProvider,
+    testContext
 }
 import fun.uschool.user.api {
     Role,
@@ -44,6 +44,10 @@ import java.lang {
     ClassLoader,
     Thread,
     ByteArray
+}
+import java.time {
+    Instant,
+    Clock
 }
 
 {[ByteArray, ByteArray, Boolean]*} slowEqualsTestCases => {
@@ -107,7 +111,7 @@ class UserTest() {
 	
 	test
 	shared void testCreateUser() {
-		withTestContext(`module`, (ctx) {
+		try (value ctx = testContext(`module`)) {
 			value user = createUser(ctx);
 			user.userName = "userName";
 			user.firstName = "firstName";
@@ -117,27 +121,28 @@ class UserTest() {
 			assert (user.firstName == "firstName");
 			assert (user.lastName == "lastName");
 			assert (user.role == Role.guest);
-		});
+			assert (user.created == Instant.epoch);
+		}
 	}
 
 	test
 	parameters (`value positivePasswordTestCases`)
 	shared void testPasswordPositive(String password) {
-		withTestContext(`module`, (ctx) {
+		try (value ctx = testContext(`module`)) {
 			value user = createUser(ctx);
-			user.setPassword(password);
+			user.password(password);
 			assert(user.hasPassword(password));
-		});
+		}
 	}
 
 	test
 	parameters (`value negativePasswordTestCases`)
 	shared void testPasswordNegative(String password1, String password2) {
-		withTestContext(`module`, (ctx) {
+		try (value ctx = testContext(`module`)) {
 			value user = createUser(ctx);
-			user.setPassword(password1);
+			user.password(password1);
 			assert(!user.hasPassword(password2));
-		});
+		}
 	}
 
     test
@@ -147,22 +152,46 @@ class UserTest() {
             subject = `module`;
         };
 		variable User(Context)? loadUser = null;
-		provider.withContext((ctx) {
+		try (value ctx = provider.obtainContext()) {
 			value user = createUser(ctx);
 			user.userName = "userName";
 			user.firstName = "firstName";
 			user.lastName = "lastName";
 			user.role = Role.guest;
 			loadUser = userLoader(user);
-        });
-        provider.withContext((ctx) {
+        }
+        try (value ctx = provider.obtainContext()) {
             assert (exists loadUser_ = loadUser);
             value user = loadUser_(ctx);
 			assert (user.userName == "userName");
 			assert (user.firstName == "firstName");
 			assert (user.lastName == "lastName");
 			assert (user.role == Role.guest);
-        });
+        }
+	}
+
+    test
+    shared void testModified() {
+        value provider = TestContextProvider {
+            commit = true;
+            subject = `module`;
+            clock = Clock.systemUTC();
+        };
+		variable User(Context)? loadUser = null;
+        try (value ctx = provider.obtainContext()) {
+			value user = createUser(ctx);
+			loadUser = userLoader(user);
+		}
+        try (value ctx = provider.obtainContext()) {
+            assert (exists loadUser_ = loadUser);
+            value user = loadUser_(ctx);
+            user.firstName = "firstName";
+        }
+        try (value ctx = provider.obtainContext()) {
+            assert (exists loadUser_ = loadUser);
+            value user = loadUser_(ctx);
+            assert (user.modified.isAfter(user.created));
+        }
 	}
 	
 	test

@@ -34,7 +34,9 @@ import fun.uschool.feature.api {
 }
 
 import java.time {
-    Clock
+    Clock,
+    Instant,
+    ZoneOffset
 }
 
 import org.jsimpledb {
@@ -45,17 +47,36 @@ import org.jsimpledb {
     }
 }
 import org.jsimpledb.core {
-    Database,
-    FieldType
+    FieldType,
+    Database
 }
 import org.jsimpledb.kv.simple {
     SimpleKVDatabase
 }
 
-shared class ContextImpl(transaction, clock, config) satisfies Context {
+shared class AlreadyReleasedException() extends Exception(
+    "Context is already released"
+) {
+}
+
+shared class ContextImpl(transaction, clock, config, onRelease) satisfies Context {
     shared JTransaction transaction;
     shared Clock clock;
     shared Toml config;
+    shared Anything onRelease(Throwable? error);
+    variable Boolean released = false;
+    
+    shared actual void obtain() {
+        if (released) {
+            throw AlreadyReleasedException();
+        }
+        
+    }
+    
+    shared actual void release(Throwable? error) {
+        onRelease(error);
+        released = true;
+    }
 }
 
 shared interface ModelClassProvider {
@@ -69,6 +90,7 @@ shared interface FieldTypeProvider {
 shared class TestContextProvider(
     Boolean commit = false,
     Toml config = Toml(),
+    Clock clock = Clock.fixed(Instant.epoch, ZoneOffset.utc),
     Module subject = `module`
 ) {
     value modelClasses = subject
@@ -77,7 +99,7 @@ shared class TestContextProvider(
     value fieldTypes = subject
         .findServiceProviders(`FieldTypeProvider`)
         .map((provider) => provider.fieldType);
-    value kvdb = SimpleKVDatabase();
+    value kvdb = SimpleKVDatabase(0, 0);
     value db = Database(kvdb);
     for (fieldType in fieldTypes) {
         db.fieldTypeRegistry.add(fieldType);
@@ -87,25 +109,28 @@ shared class TestContextProvider(
         .setModelClasses(*modelClasses)
         .setDatabase(db)
         .newJSimpleDB();
-    value clock = Clock.systemUTC();
 
-    shared T withContext<T>(T run(Context ctx)) {
+    shared Context obtainContext() {
         value tx = jdb.createTransaction(true, automatic);
-        try {
-            value result = run(ContextImpl(tx, clock, config));
-            if (commit) {
-                tx.commit();
-            }
-            return result;
-        } finally {
-            tx.rollback();
-        }
+        value ctx = ContextImpl {
+            transaction = tx;
+            clock = clock;
+            config = config;
+            onRelease = (error) {
+                if (!exists error, commit) {
+                    tx.commit();
+                } else {
+                    tx.rollback();
+                }
+            };
+        };
+        return ctx;
     }
 }
 
-shared T withTestContext<T>(Module modelClassesModule, T run(Context ctx)) {
+shared Context testContext(Module modelClassesModule) {
     value provider = TestContextProvider {
         subject = modelClassesModule;
     };
-    return provider.withContext(run);
+    return provider.obtainContext();
 }

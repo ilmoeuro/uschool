@@ -25,16 +25,19 @@ import ceylon.language.meta.model {
 }
 
 import com.google.common.base {
-    Converter
+    Converter,
+    MoreObjects {
+        toStringHelper
+    }
 }
 
+import fun.uschool.feature.api {
+    Context
+}
 import fun.uschool.feature.impl {
     ContextImpl,
     ModelClassProvider,
     FieldTypeProvider
-}
-import fun.uschool.feature.api {
-    Context
 }
 import fun.uschool.user.api {
     User,
@@ -48,6 +51,9 @@ import java.lang {
 import java.security {
     SecureRandom
 }
+import java.time {
+    Instant
+}
 
 import javax.crypto {
     SecretKeyFactory
@@ -56,9 +62,13 @@ import javax.crypto.spec {
     PBEKeySpec
 }
 
+import org.jsimpledb {
+    JObject
+}
 import org.jsimpledb.annotation {
     jField__GETTER,
-    jSimpleClass
+    jSimpleClass,
+    onChange
 }
 import org.jsimpledb.core {
     FieldType
@@ -94,10 +104,10 @@ Boolean slowEquals(ByteArray a, ByteArray b) {
 }
 
 jSimpleClass
-shared abstract class UserImpl() satisfies User {
+shared abstract class UserImpl() satisfies User & JObject {
     shared variable Context? context = null;
 
-    jField__GETTER { indexed = true; }
+    jField__GETTER { indexed = true; unique = true; }
     shared formal actual variable String userName;
     jField__GETTER
     shared formal actual variable String firstName;
@@ -105,6 +115,10 @@ shared abstract class UserImpl() satisfies User {
     shared formal actual variable String lastName;
     jField__GETTER
     shared formal actual variable Role role;
+    jField__GETTER
+    shared formal actual variable Instant created;
+    jField__GETTER
+    shared formal actual variable Instant modified;
 
     jField__GETTER
     shared formal variable ByteArray passwordKey;
@@ -113,7 +127,7 @@ shared abstract class UserImpl() satisfies User {
     jField__GETTER
     shared formal variable Integer passwordIterations;
     
-    shared actual void setPassword(String password) {
+    shared actual void password(String password) {
         value random = SecureRandom();
         ByteArray salt = ByteArray(saltBytes, 0.byte);
         random.nextBytes(salt);
@@ -132,7 +146,6 @@ shared abstract class UserImpl() satisfies User {
     }
 
     shared void init() {
-        "User should be activated before calling `init`"
         assert (is ContextImpl ctx = context);
         this.userName = "";
         this.firstName = "";
@@ -141,7 +154,28 @@ shared abstract class UserImpl() satisfies User {
         this.passwordKey = createJavaByteArray{};
         this.passwordSalt = createJavaByteArray{};
         this.passwordIterations = 0;
+        this.created = ctx.clock.instant();
+        this.modified = this.created;
     }
+    
+    onChange shared void changed() {
+        assert (is ContextImpl ctx = context);
+
+        this.modified = ctx.clock.instant();
+    }
+    
+    string => toStringHelper(this)
+        .add("objId", objId)
+        .add("userName", userName)
+        .add("firstName", firstName)
+        .add("lastName", lastName)
+        .add("role", role)
+        .add("created", created)
+        .add("modified", modified)
+        .add("passwordKey", passwordKey)
+        .add("passwordSalt", passwordSalt)
+        .add("passwordIterations", passwordIterations)
+        .string;
 }
 
 shared class RoleConverter() extends Converter<Role, JString>() {
