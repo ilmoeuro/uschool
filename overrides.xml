@@ -1,0 +1,26 @@
+<overrides xmlns="http://www.ceylon-lang.org/xsd/overrides">
+    <!-- wicket-core happens to use javax.servlet.Filter provided by
+         commons-fileupload, which depends on old servlet-api. This
+         fixes the version conflict. -->
+    <replace groupId="javax.servlet" artifactId="servlet-api">
+        <with
+			groupId="javax.servlet"
+			artifactId="javax.servlet-api"
+			version="3.1.0"
+			/>
+    </replace>
+    <module groupId="org.jsimpledb" artifactId="jsimpledb-util">
+        <share groupId="com.google.guava" artifactId="guava" />
+    </module>
+    <module groupId="org.jsimpledb" artifactId="jsimpledb-coreapi">
+        <remove groupId="com.google.guava" artifactId="guava" />
+        <share groupId="org.jsimpledb" artifactId="jsimpledb-util" />
+        <share groupId="org.jsimpledb" artifactId="jsimpledb-kv" />
+    </module>
+    <module groupId="org.jsimpledb" artifactId="jsimpledb-main">
+        <remove groupId="com.google.guava" artifactId="guava" />
+        <remove groupId="org.jsimpledb" artifactId="jsimpledb-util" />
+        <share groupId="org.jsimpledb" artifactId="jsimpledb-coreapi" />
+        <!-- <share groupId="org.dellroad" artifactId="dellroad-stuff-main" /> -->
+    </module>
+</overrides>

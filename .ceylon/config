@@ -1,0 +1,8 @@
+
+[compiler]
+source=source
+resource=resource
+
+[defaults]
+overrides=overrides.xml
+encoding=UTF-8
