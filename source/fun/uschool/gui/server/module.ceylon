@@ -26,4 +26,5 @@ module fun.uschool.gui.server "1.0.0" {
 	shared import maven:"org.eclipse.jetty:jetty-util" "9.4.0.v20161208";
 	shared import maven:"org.eclipse.jetty:jetty-rewrite" "9.4.0.v20161208";
 	shared import maven:"org.eclipse.jetty:jetty-servlets" "9.4.0.v20161208";
+	shared import fun.uschool.gui.webapp "1.0.0";
 }

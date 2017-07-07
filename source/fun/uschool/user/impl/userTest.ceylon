@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 import ceylon.interop.java {
-    javaClassFromInstance,
-    createJavaByteArray
+    createJavaByteArray,
+    javaClassFromInstance
 }
 import ceylon.test {
     beforeTest,
@@ -32,17 +32,17 @@ import fun.uschool.feature.api {
 import fun.uschool.feature.provider {
     TestContextProvider
 }
-
 import fun.uschool.user.api {
     Role,
     createUser,
     User,
     userLoader
 }
+import fun.uschool.util {
+    SetupContextClassLoader
+}
 
 import java.lang {
-    ClassLoader,
-    Thread,
     ByteArray
 }
 import java.time {
@@ -93,22 +93,22 @@ import java.time {
 };
 
 class UserTest() {
-    variable ClassLoader? originalClassLoader = null;
+    variable SetupContextClassLoader? setupContextClassLoader = null;
     function provider() {
         return TestContextProvider(`module`);
     }
     
 	beforeTest
 	shared void setupClassLoader() {
-		value thread = Thread.currentThread();
-		originalClassLoader = thread.contextClassLoader;
-		thread.contextClassLoader = javaClassFromInstance(this).classLoader;
+        value classLoader = javaClassFromInstance(this).classLoader;
+        setupContextClassLoader = SetupContextClassLoader(classLoader);
 	}
 	
 	afterTest
 	shared void restoreClassLoader() {
-		if (exists cl = originalClassLoader) {
-			Thread.currentThread().contextClassLoader = cl;
+		if (exists sccl = setupContextClassLoader) {
+			sccl.destroy(null);
+			setupContextClassLoader = null;
 		}
 	}
 	

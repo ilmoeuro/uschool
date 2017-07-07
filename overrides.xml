@@ -2,6 +2,7 @@
     <!-- wicket-core happens to use javax.servlet.Filter provided by
          commons-fileupload, which depends on old servlet-api. This
          fixes the version conflict. -->
+	 <!--
     <replace groupId="javax.servlet" artifactId="servlet-api">
         <with
 			groupId="javax.servlet"
@@ -9,6 +10,7 @@
 			version="3.1.0"
 			/>
     </replace>
+	-->
     <module groupId="org.jsimpledb" artifactId="jsimpledb-util">
         <share groupId="com.google.guava" artifactId="guava" />
     </module>
@@ -21,7 +23,7 @@
         <remove groupId="com.google.guava" artifactId="guava" />
         <remove groupId="org.jsimpledb" artifactId="jsimpledb-util" />
         <share groupId="org.jsimpledb" artifactId="jsimpledb-coreapi" />
-        <!-- <share groupId="org.dellroad" artifactId="dellroad-stuff-main" /> -->
+        <share groupId="org.dellroad" artifactId="dellroad-stuff-main" />
     </module>
     <module groupId="org.eclipse.jetty" artifactId="jetty-io">
         <share groupId="org.eclipse.jetty" artifactId="jetty-util" />
@@ -82,5 +84,30 @@
 			version="3.1.0"
 			shared="true"
 			/>
+    </module>
+    <module groupId="commons-fileupload" artifactId="commons-fileupload">
+        <remove
+			groupId="javax.servlet"
+			artifactId="servlet-api"
+			/>
+        <add
+			groupId="javax.servlet"
+			artifactId="javax.servlet-api"
+			version="3.1.0"
+			shared="true"
+			/>
+    </module>
+    <module groupId="org.apache.wicket" artifactId="wicket-util">
+        <share groupId="commons-fileupload" artifactId="commons-fileupload" />
+    </module>
+    <module groupId="org.apache.wicket" artifactId="wicket-core">
+	   <share groupId="org.apache.wicket" artifactId="wicket-request" />
+	   <remove groupId="org.apache.wicket" artifactId="wicket-util" />
+    </module>
+    <module groupId="org.apache.wicket" artifactId="wicket-request">
+	   <share groupId="org.apache.wicket" artifactId="wicket-util" />
+    </module>
+    <module groupId="org.apache.wicket" artifactId="wicket-auth-roles">
+	   <share groupId="org.apache.wicket" artifactId="wicket-core" />
     </module>
 </overrides>

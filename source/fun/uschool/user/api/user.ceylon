@@ -92,7 +92,6 @@ shared User(Context) userLoader(User user) {
 
     User load(Context context) {
         assert (is AppContext context);
-
         value result = context.transaction.get(jobj.objId, `UserImpl`);
         result.context = context;
         return result;
@@ -115,9 +114,9 @@ shared User? findUserByName(Context ctx, String userName) {
     "Context should be AppContext, was `ctx`"
     assert (is AppContext ctx);
     value tx = ctx.transaction;
-    value users = tx.queryIndex(`UserImpl`, "userName", `JString`)
-                    .asMap()
-                    .get(javaString(userName));
+    print(tx.getAll(`UserImpl`));
+    value usersIndex = tx.queryIndex(`UserImpl`, "userName", `JString`);
+    value users = usersIndex.asMap().get(javaString(userName));
     if (exists users, !users.empty) {
         return users.first();
     } else {

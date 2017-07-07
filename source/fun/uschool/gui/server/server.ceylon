@@ -49,7 +49,11 @@ shared void run() {
     Server server = Server(port);
     
     WebAppContext context = WebAppContext();
-    context.baseResource = JettyResource.newClassPathResource("/webapp/");
+    value resource = JettyResource.newClassPathResource("/webapp/");
+    print("=== BASE RESOURCE: ===");
+    print(resource);
+    context.resourceBase = resource.uri.string;
+    // context.baseResource = resource;
     context.configurations = createJavaObjectArray<Configuration> {
         JettyWebXmlConfiguration(),
         WebInfConfiguration(), 

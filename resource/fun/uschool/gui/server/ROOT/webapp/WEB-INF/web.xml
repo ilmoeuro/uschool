@@ -3,13 +3,12 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
          http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
-    <!--
     <filter>
-        <filter-name>AddressBookFilter</filter-name>
-        <filter-class>addressbook.webapp.AddressBookFilter</filter-class>
+        <filter-name>WicketFilter</filter-name>
+        <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
         <init-param>
             <param-name>applicationClassName</param-name>
-            <param-value>addressbook.webapp.AddressBookApplication</param-value>
+            <param-value>fun.uschool.gui.webapp.UschoolApplication</param-value>
         </init-param>
         <init-param>
             <param-name>filterMappingUrlPattern</param-name>
@@ -17,8 +16,7 @@
         </init-param>
     </filter>
     <filter-mapping>
-        <filter-name>AddressBookFilter</filter-name>
+        <filter-name>WicketFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    -->
 </web-app>
