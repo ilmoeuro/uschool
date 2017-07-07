@@ -15,47 +15,4 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import ceylon.language.meta.model {
-    ClassOrInterface
-}
-
-import com.moandjiezana.toml {
-    Toml
-}
-
-import fun.uschool.feature.api {
-    Context
-}
-
-import java.time {
-    Clock
-}
-
-import org.jsimpledb {
-    JTransaction
-}
-import org.jsimpledb.core {
-    FieldType
-}
-
-shared class AlreadyReleasedException() extends Exception(
-    "Context is already released"
-) {
-}
-
-shared abstract class AppContext(transaction, clock, config)
-        satisfies Context & Destroyable {
-
-    shared JTransaction transaction;
-    shared Clock clock;
-    shared Toml config;
-}
-
-shared interface ModelClassProvider {
-    shared formal ClassOrInterface<Object> modelClass;
-}
-
-shared interface FieldTypeProvider {
-    shared formal FieldType<out Object> fieldType;
-}
-
+shared package fun.uschool.gui.server;

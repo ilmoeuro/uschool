@@ -23,4 +23,64 @@
         <share groupId="org.jsimpledb" artifactId="jsimpledb-coreapi" />
         <!-- <share groupId="org.dellroad" artifactId="dellroad-stuff-main" /> -->
     </module>
+    <module groupId="org.eclipse.jetty" artifactId="jetty-io">
+        <share groupId="org.eclipse.jetty" artifactId="jetty-util" />
+    </module>
+    <module groupId="org.eclipse.jetty" artifactId="jetty-server">
+        <share groupId="org.eclipse.jetty" artifactId="jetty-io" />
+    </module>
+    <module groupId="org.eclipse.jetty" artifactId="jetty-plus">
+        <add
+            groupId="org.eclipse.jetty"
+            artifactId="jetty-xml"
+            version="9.4.0.v20161208"
+            shared="true" />
+        <share groupId="org.eclipse.jetty" artifactId="jetty-io" />
+        <share groupId="org.eclipse.jetty" artifactId="jetty-webapp" />
+    </module>
+    <module groupId="org.eclipse.jetty" artifactId="jetty-webapp">
+        <share groupId="org.eclipse.jetty" artifactId="jetty-servlet" />
+        <add
+            groupId="org.eclipse.jetty"
+            artifactId="jetty-jndi"
+            version="9.4.0.v20161208"
+            shared="true" />
+        <add
+            groupId="org.eclipse.jetty"
+            artifactId="jetty-http"
+            version="9.4.0.v20161208"
+            shared="true" />
+        <add
+            groupId="org.eclipse.jetty"
+            artifactId="jetty-security"
+            version="9.4.0.v20161208"
+            shared="true" />
+    </module>
+    <module groupId="org.eclipse.jetty" artifactId="jetty-servlet">
+        <add
+            groupId="org.eclipse.jetty"
+            artifactId="jetty-server"
+            version="9.4.0.v20161208"
+            shared="true" />
+        <add
+			groupId="javax.servlet"
+			artifactId="javax.servlet-api"
+			version="3.1.0"
+			shared="true"
+			/>
+    </module>
+    <module groupId="org.eclipse.jetty" artifactId="jetty-security">
+        <add
+			groupId="org.eclipse.jetty"
+			artifactId="jetty-http"
+			version="9.4.0.v20161208"
+			shared="true"
+			/>
+        <add
+			groupId="javax.servlet"
+			artifactId="javax.servlet-api"
+			version="3.1.0"
+			shared="true"
+			/>
+    </module>
 </overrides>

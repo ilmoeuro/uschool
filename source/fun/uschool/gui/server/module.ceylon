@@ -15,47 +15,16 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import ceylon.language.meta.model {
-    ClassOrInterface
+native("jvm")
+module fun.uschool.gui.server "1.0.0" {
+	shared import java.base "8";
+	shared import ceylon.interop.java "1.3.2";
+    shared import maven:"javax.servlet:javax.servlet-api" "3.1.0";
+	shared import maven:"org.apache.wicket:wicket-core" "7.6.0";
+	shared import maven:"org.eclipse.jetty:jetty-server" "9.4.0.v20161208";
+	shared import maven:"org.eclipse.jetty:jetty-plus" "9.4.0.v20161208";
+	shared import maven:"org.eclipse.jetty:jetty-annotations" "9.4.0.v20161208";
+	shared import maven:"org.eclipse.jetty:jetty-util" "9.4.0.v20161208";
+	shared import maven:"org.eclipse.jetty:jetty-rewrite" "9.4.0.v20161208";
+	shared import maven:"org.eclipse.jetty:jetty-servlets" "9.4.0.v20161208";
 }
-
-import com.moandjiezana.toml {
-    Toml
-}
-
-import fun.uschool.feature.api {
-    Context
-}
-
-import java.time {
-    Clock
-}
-
-import org.jsimpledb {
-    JTransaction
-}
-import org.jsimpledb.core {
-    FieldType
-}
-
-shared class AlreadyReleasedException() extends Exception(
-    "Context is already released"
-) {
-}
-
-shared abstract class AppContext(transaction, clock, config)
-        satisfies Context & Destroyable {
-
-    shared JTransaction transaction;
-    shared Clock clock;
-    shared Toml config;
-}
-
-shared interface ModelClassProvider {
-    shared formal ClassOrInterface<Object> modelClass;
-}
-
-shared interface FieldTypeProvider {
-    shared formal FieldType<out Object> fieldType;
-}
-

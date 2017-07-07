@@ -92,6 +92,7 @@ shared User(Context) userLoader(User user) {
 
     User load(Context context) {
         assert (is AppContext context);
+
         value result = context.transaction.get(jobj.objId, `UserImpl`);
         result.context = context;
         return result;
