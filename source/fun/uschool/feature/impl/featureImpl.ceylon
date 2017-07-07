@@ -15,12 +15,6 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import ceylon.interop.java {
-    javaClassFromModel
-}
-import ceylon.language.meta.declaration {
-    Module
-}
 import ceylon.language.meta.model {
     ClassOrInterface
 }
@@ -34,24 +28,14 @@ import fun.uschool.feature.api {
 }
 
 import java.time {
-    Clock,
-    Instant,
-    ZoneOffset
+    Clock
 }
 
 import org.jsimpledb {
-    JTransaction,
-    JSimpleDBFactory,
-    ValidationMode {
-        automatic
-    }
+    JTransaction
 }
 import org.jsimpledb.core {
-    FieldType,
-    Database
-}
-import org.jsimpledb.kv.simple {
-    SimpleKVDatabase
+    FieldType
 }
 
 shared class AlreadyReleasedException() extends Exception(
@@ -59,7 +43,8 @@ shared class AlreadyReleasedException() extends Exception(
 ) {
 }
 
-shared abstract class ContextImpl(transaction, clock, config) satisfies Context {
+shared abstract class AppContext(transaction, clock, config)
+        satisfies Context & Destroyable {
     shared JTransaction transaction;
     shared Clock clock;
     shared Toml config;
@@ -73,40 +58,3 @@ shared interface FieldTypeProvider {
     shared formal FieldType<out Object> fieldType;
 }
 
-shared class TestContextProvider(
-    Module subject = `module`,
-    Boolean commit = false,
-    Toml config = Toml(),
-    Clock clock = Clock.fixed(Instant.epoch, ZoneOffset.utc)
-) {
-    value modelClasses = subject
-        .findServiceProviders(`ModelClassProvider`)
-        .map((provider) => javaClassFromModel(provider.modelClass));
-    value fieldTypes = subject
-        .findServiceProviders(`FieldTypeProvider`)
-        .map((provider) => provider.fieldType);
-    value kvdb = SimpleKVDatabase(0, 0);
-    value db = Database(kvdb);
-    for (fieldType in fieldTypes) {
-        db.fieldTypeRegistry.add(fieldType);
-    }
-    value jdb = JSimpleDBFactory()
-        .setSchemaVersion(-1)
-        .setModelClasses(*modelClasses)
-        .setDatabase(db)
-        .newJSimpleDB();
-
-    shared class NewContext() extends ContextImpl(
-        jdb.createTransaction(true, automatic),
-        outer.clock,
-        outer.config
-    ) {
-        shared actual void destroy(Throwable? error) {
-            if (!exists error, commit) {
-                transaction.commit();
-            } else {
-                transaction.rollback();
-            }
-        }
-    }
-}

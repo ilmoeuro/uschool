@@ -17,6 +17,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-shared interface Context satisfies Destroyable {
+shared interface Context {
 
 }

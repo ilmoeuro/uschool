@@ -15,15 +15,4 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-native("jvm")
-module fun.uschool.user.impl "1.0.0" {
-    shared import java.base "8";
-    shared import fun.uschool.user.api "1.0.0";
-    shared import fun.uschool.feature.api "1.0.0";
-    shared import fun.uschool.feature.impl "1.0.0";
-    shared import fun.uschool.feature.provider "1.0.0";
-
-    import ceylon.interop.java "1.3.2";
-    import ceylon.buffer "1.3.2";
-    import ceylon.test "1.3.2";
-}
+shared package fun.uschool.feature.provider;

@@ -29,9 +29,10 @@ import ceylon.test {
 import fun.uschool.feature.api {
     Context
 }
-import fun.uschool.feature.impl {
+import fun.uschool.feature.provider {
     TestContextProvider
 }
+
 import fun.uschool.user.api {
     Role,
     createUser,

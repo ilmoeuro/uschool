@@ -26,7 +26,7 @@ import fun.uschool.feature.api {
     Context
 }
 import fun.uschool.feature.impl {
-    ContextImpl
+    AppContext
 }
 import fun.uschool.user.impl {
     UserImpl
@@ -74,18 +74,14 @@ shared class Role of guest | student | moderator | admin {
 
     shared String name;
     
-    shared new guest {
-        name = "guest";
+    abstract new named(String name) {
+        this.name = name;
     }
-    shared new student {
-        name = "student";
-    }
-    shared new moderator {
-        name = "moderator";
-    }
-    shared new admin {
-        name = "admin";
-    }
+
+    shared new guest extends named("guest") {}
+    shared new student extends named("student") {}
+    shared new moderator extends named("moderator") {}
+    shared new admin extends named("admin") {}
 
     string => name;
 }
@@ -95,7 +91,7 @@ shared User(Context) userLoader(User user) {
     assert (is JObject jobj = user);
 
     User load(Context context) {
-        assert (is ContextImpl context);
+        assert (is AppContext context);
         value result = context.transaction.get(jobj.objId, `UserImpl`);
         result.context = context;
         return result;
@@ -105,8 +101,8 @@ shared User(Context) userLoader(User user) {
 }
 
 shared User createUser(Context ctx) {
-    "Context should be ContextImpl, was `ctx`"
-    assert (is ContextImpl ctx);
+    "Context should be AppContext, was `ctx`"
+    assert (is AppContext ctx);
     value tx = ctx.transaction;
     value result = tx.create(`UserImpl`);
     result.context = ctx;
@@ -115,8 +111,8 @@ shared User createUser(Context ctx) {
 }
 
 shared User? findUserByName(Context ctx, String userName) {
-    "Context should be ContextImpl, was `ctx`"
-    assert (is ContextImpl ctx);
+    "Context should be AppContext, was `ctx`"
+    assert (is AppContext ctx);
     value tx = ctx.transaction;
     value users = tx.queryIndex(`UserImpl`, "userName", `JString`)
                     .asMap()

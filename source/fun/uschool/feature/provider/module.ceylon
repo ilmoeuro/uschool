@@ -16,14 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 native("jvm")
-module fun.uschool.user.impl "1.0.0" {
-    shared import java.base "8";
-    shared import fun.uschool.user.api "1.0.0";
+module fun.uschool.feature.provider "1.0.0" {
     shared import fun.uschool.feature.api "1.0.0";
     shared import fun.uschool.feature.impl "1.0.0";
-    shared import fun.uschool.feature.provider "1.0.0";
-
-    import ceylon.interop.java "1.3.2";
-    import ceylon.buffer "1.3.2";
-    import ceylon.test "1.3.2";
+	shared import java.base "8";
+	shared import maven:"org.jsimpledb":"jsimpledb-main" "3.5.0";
+	shared import maven:"org.jsimpledb":"jsimpledb-kv-simple" "3.5.0";
+	shared import maven:"com.moandjiezana.toml":"toml4j" "0.7.1";
+	
+	import ceylon.interop.java "1.3.2";
+	import ceylon.buffer "1.3.2";
 }

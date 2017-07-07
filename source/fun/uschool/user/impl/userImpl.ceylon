@@ -20,9 +20,6 @@ import ceylon.interop.java {
     javaString,
     javaClass
 }
-import ceylon.language.meta.model {
-    ClassOrInterface
-}
 
 import com.google.common.base {
     Converter,
@@ -30,12 +27,15 @@ import com.google.common.base {
         toStringHelper
     }
 }
+import com.moandjiezana.toml {
+    Toml
+}
 
 import fun.uschool.feature.api {
     Context
 }
 import fun.uschool.feature.impl {
-    ContextImpl,
+    AppContext,
     ModelClassProvider,
     FieldTypeProvider
 }
@@ -70,9 +70,6 @@ import org.jsimpledb.annotation {
     jSimpleClass,
     onChange
 }
-import org.jsimpledb.core {
-    FieldType
-}
 import org.jsimpledb.core.type {
     StringEncodedType
 }
@@ -103,6 +100,10 @@ Boolean slowEquals(ByteArray a, ByteArray b) {
     return diff == 0;
 }
 
+shared class Config(Toml config) {
+    
+}
+
 jSimpleClass
 shared abstract class UserImpl() satisfies User & JObject {
     shared variable Context? context = null;
@@ -128,6 +129,7 @@ shared abstract class UserImpl() satisfies User & JObject {
     shared formal variable Integer passwordIterations;
     
     shared actual void password(String password) {
+        assert (is AppContext ctx = context);
         value random = SecureRandom();
         ByteArray salt = ByteArray(saltBytes, 0.byte);
         random.nextBytes(salt);
@@ -146,7 +148,7 @@ shared abstract class UserImpl() satisfies User & JObject {
     }
 
     shared void init() {
-        assert (is ContextImpl ctx = context);
+        assert (is AppContext ctx = context);
         this.userName = "";
         this.firstName = "";
         this.lastName = "";
@@ -158,9 +160,8 @@ shared abstract class UserImpl() satisfies User & JObject {
         this.modified = this.created;
     }
     
-    onChange shared void changed() {
-        assert (is ContextImpl ctx = context);
-
+    onChange shared void updateModified() {
+        assert (is AppContext ctx = context);
         this.modified = ctx.clock.instant();
     }
     
@@ -192,7 +193,7 @@ shared class RoleConverter() extends Converter<Role, JString>() {
 
 service (`interface ModelClassProvider`)
 shared class UserImplModelClassProvider() satisfies ModelClassProvider {
-    shared actual ClassOrInterface<Object> modelClass => `UserImpl`;
+    modelClass => `UserImpl`;
 }
 
 shared class RoleType() extends StringEncodedType<Role>(
@@ -204,5 +205,5 @@ shared class RoleType() extends StringEncodedType<Role>(
 
 service (`interface FieldTypeProvider`)
 shared class RoleFieldTypeProvider() satisfies FieldTypeProvider {
-    shared actual FieldType<out Object> fieldType => RoleType();
+    fieldType => RoleType();
 }
