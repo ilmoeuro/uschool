@@ -38,6 +38,14 @@ import org.jsimpledb.core {
     FieldType
 }
 
+shared interface ModelClassProvider {
+    shared formal ClassOrInterface<Object> modelClass;
+}
+
+shared interface FieldTypeProvider {
+    shared formal FieldType<out Object> fieldType;
+}
+
 shared class AlreadyReleasedException() extends Exception(
     "Context is already released"
 ) {
@@ -50,12 +58,3 @@ shared abstract class AppContext(transaction, clock, config)
     shared Clock clock;
     shared Toml config;
 }
-
-shared interface ModelClassProvider {
-    shared formal ClassOrInterface<Object> modelClass;
-}
-
-shared interface FieldTypeProvider {
-    shared formal FieldType<out Object> fieldType;
-}
-

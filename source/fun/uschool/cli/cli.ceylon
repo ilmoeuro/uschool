@@ -19,9 +19,9 @@ import fun.uschool.feature.provider {
     TestContextProvider
 }
 import fun.uschool.user.api {
-    User,
     realCreateUser=createUser,
-    realFindUserByName=findUserByName
+    realFindUserByName=findUserByName,
+    User
 }
 
 import groovy.lang {

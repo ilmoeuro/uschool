@@ -1,4 +1,3 @@
-
 /*
     uschool - worldwide learning platform
     Copyright (2017) Ilmo Euro

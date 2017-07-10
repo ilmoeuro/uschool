@@ -36,11 +36,11 @@ import fun.uschool.feature.api {
 }
 import fun.uschool.feature.impl {
     AppContext,
-    ModelClassProvider,
-    FieldTypeProvider
+    FieldTypeProvider,
+    ModelClassProvider
 }
 import fun.uschool.user.api {
-    User,
+    PassiveUser,
     Role
 }
 
@@ -79,6 +79,29 @@ Integer keyLength = saltBytes * 8;
 Integer initialNumIterations = 10_000;
 String secretKeyAlgorithm = "PBKDF2WithHmacSHA256";
 
+shared class Config(Toml config) {
+    
+}
+
+shared class RoleConverter() extends Converter<Role, JString>() {
+    shared actual Role doBackward(JString? name) {
+        "Cannot convert null to role."
+        assert (exists name);
+        return Role.ofName(name.string);
+    }
+    
+    shared actual JString doForward(Role? role) {
+        return javaString(role?.name else "null");
+    }
+}
+
+shared class RoleType() extends StringEncodedType<Role>(
+    javaClass<Role>(),
+    0,
+    RoleConverter()
+) {
+}
+
 ByteArray pbkdf2(String password, ByteArray salt, Integer numIterations) {
     SecretKeyFactory secretKeyFactory =
             SecretKeyFactory.getInstance(secretKeyAlgorithm);
@@ -100,26 +123,20 @@ Boolean slowEquals(ByteArray a, ByteArray b) {
     return diff == 0;
 }
 
-shared class Config(Toml config) {
-    
-}
-
 jSimpleClass
-shared abstract class UserImpl() satisfies User & JObject {
-    shared variable Context? context = null;
-
+shared abstract class UserImpl() satisfies PassiveUser & JObject {
     jField__GETTER { indexed = true; unique = true; }
-    shared formal actual variable String userName;
+    shared formal variable String userNameField;
     jField__GETTER
-    shared formal actual variable String firstName;
+    shared formal variable String firstNameField;
     jField__GETTER
-    shared formal actual variable String lastName;
+    shared formal variable String lastNameField;
     jField__GETTER
-    shared formal actual variable Role role;
+    shared formal variable Role roleField;
     jField__GETTER
-    shared formal actual variable Instant created;
+    shared formal variable Instant createdField;
     jField__GETTER
-    shared formal actual variable Instant modified;
+    shared formal variable Instant modifiedField;
 
     jField__GETTER
     shared formal variable ByteArray passwordKey;
@@ -128,82 +145,88 @@ shared abstract class UserImpl() satisfies User & JObject {
     jField__GETTER
     shared formal variable Integer passwordIterations;
     
-    shared actual void password(String password) {
-        assert (is AppContext ctx = context);
-        value random = SecureRandom();
-        ByteArray salt = ByteArray(saltBytes, 0.byte);
-        random.nextBytes(salt);
-        value iterations = initialNumIterations;
-        value key = pbkdf2(password, salt, iterations);
-        passwordKey = key;
-        passwordSalt = salt;
-        passwordIterations = iterations;
-    }
+    variable Anything()? onChanged = null;
     
-    shared actual Boolean hasPassword(String password) {
-        value salt = passwordSalt;
-        value iterations = passwordIterations;
-        value key = pbkdf2(password, salt, iterations);
-        return slowEquals(key, passwordKey);
-    }
+    shared actual class Active(Context ctx) extends super.Active(ctx) {
+        "Context should be AppContext, was `ctx`"
+        assert (is AppContext ctx);
+        
+        onChanged = () => modifiedField = ctx.clock.instant();
 
-    shared void init() {
-        assert (is AppContext ctx = context);
-        this.userName = "";
-        this.firstName = "";
-        this.lastName = "";
-        this.role = Role.guest;
-        this.passwordKey = createJavaByteArray{};
-        this.passwordSalt = createJavaByteArray{};
-        this.passwordIterations = 0;
-        this.created = ctx.clock.instant();
-        this.modified = this.created;
-    }
-    
-    onChange shared void updateModified() {
-        assert (is AppContext ctx = context);
-        this.modified = ctx.clock.instant();
-    }
-    
-    string => toStringHelper(this)
-        .add("objId", objId)
-        .add("userName", userName)
-        .add("firstName", firstName)
-        .add("lastName", lastName)
-        .add("role", role)
-        .add("created", created)
-        .add("modified", modified)
-        .add("passwordKey", passwordKey)
-        .add("passwordSalt", passwordSalt)
-        .add("passwordIterations", passwordIterations)
-        .string;
-}
+        shared actual PassiveUser passive => outer;
+        
+        shared actual String userName => userNameField;
+        assign userName => userNameField = userName;
 
-shared class RoleConverter() extends Converter<Role, JString>() {
-    shared actual Role doBackward(JString? name) {
-        "Cannot convert null to role."
-        assert (exists name);
-        return Role.ofName(name.string);
-    }
-    
-    shared actual JString doForward(Role? role) {
-        return javaString(role?.name else "null");
-    }
-}
+        shared actual String firstName => firstNameField;
+        assign firstName => firstNameField = firstName;
 
-service (`interface ModelClassProvider`)
-shared class UserImplModelClassProvider() satisfies ModelClassProvider {
-    modelClass => `UserImpl`;
-}
+        shared actual String lastName => lastNameField;
+        assign lastName => lastNameField = lastName;
 
-shared class RoleType() extends StringEncodedType<Role>(
-    javaClass<Role>(),
-    0,
-    RoleConverter()
-) {
+        shared actual Role role => roleField;
+        assign role => roleField = role;
+
+        shared actual Instant created => createdField;
+        shared actual Instant modified => modifiedField;
+
+        shared actual void password(String password) {
+            value random = SecureRandom();
+            ByteArray salt = ByteArray(saltBytes, 0.byte);
+            random.nextBytes(salt);
+            value iterations = initialNumIterations;
+            value key = pbkdf2(password, salt, iterations);
+            passwordKey = key;
+            passwordSalt = salt;
+            passwordIterations = iterations;
+        }
+        
+        shared actual Boolean hasPassword(String password) {
+            value salt = passwordSalt;
+            value iterations = passwordIterations;
+            value key = pbkdf2(password, salt, iterations);
+            return slowEquals(key, passwordKey);
+        }
+
+        shared void init() {
+            userNameField = "";
+            firstNameField = "";
+            lastNameField = "";
+            roleField = Role.guest;
+            passwordKey = createJavaByteArray{};
+            passwordSalt = createJavaByteArray{};
+            passwordIterations = 0;
+            createdField = ctx.clock.instant();
+            modifiedField = this.created;
+        }
+        
+        string => toStringHelper("User")
+            .add("objId", objId)
+            .add("userNameField", userNameField)
+            .add("firstNameField", firstNameField)
+            .add("lastNameField", lastNameField)
+            .add("roleField", roleField)
+            .add("createdField", createdField)
+            .add("modifiedField", modifiedField)
+            .add("passwordKey", passwordKey)
+            .add("passwordSalt", passwordSalt)
+            .add("passwordIterations", passwordIterations)
+            .string;
+    }
+        
+    onChange shared void changed() {
+        if (exists handler = onChanged) {
+            handler();
+        }
+    }
 }
 
 service (`interface FieldTypeProvider`)
 shared class RoleFieldTypeProvider() satisfies FieldTypeProvider {
     fieldType => RoleType();
+}
+
+service (`interface ModelClassProvider`)
+shared class UserImplModelClassProvider() satisfies ModelClassProvider {
+    modelClass => `UserImpl`;
 }

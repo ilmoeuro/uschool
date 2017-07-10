@@ -22,6 +22,7 @@ module fun.uschool.cli "1.0.0" {
     shared import fun.uschool.user.api "1.0.0";
     shared import fun.uschool.user.impl "1.0.0";
     shared import fun.uschool.feature.impl "1.0.0";
+    shared import fun.uschool.feature.provider "1.0.0";
 
     import ceylon.interop.java "1.3.2";
 }

@@ -43,17 +43,23 @@ import org.jsimpledb {
     JObject
 }
 
-shared interface User {
-    shared formal variable String userName;
-    shared formal variable String firstName;
-    shared formal variable String lastName;
-    shared formal variable Role role;
-    shared formal Instant created;
-    shared formal Instant modified;
-    
-    shared formal void password(String password);
-    shared formal Boolean hasPassword(String password);
+shared interface PassiveUser {
+    shared formal class Active(Context ctx) {
+        shared formal PassiveUser passive;
+
+        shared formal variable String userName;
+        shared formal variable String firstName;
+        shared formal variable String lastName;
+        shared formal variable Role role;
+        shared formal Instant created;
+        shared formal Instant modified;
+        
+        shared formal void password(String password);
+        shared formal Boolean hasPassword(String password);
+    }
 }
+
+shared alias User => PassiveUser.Active;
 
 shared class InvalidRoleNameException() extends Exception(
     "Invalid role name"
@@ -87,14 +93,15 @@ shared class Role of guest | student | moderator | admin {
 }
 
 shared User(Context) userLoader(User user) {
-    "User should be JObject, was `user`"
-    assert (is JObject jobj = user);
+    PassiveUser passive = user.passive;
 
+    "Passive user should be JObject, was `passive`"
+    assert (is JObject passive);
+    
     User load(Context context) {
         assert (is AppContext context);
-        value result = context.transaction.get(jobj.objId, `UserImpl`);
-        result.context = context;
-        return result;
+        value result = context.transaction.get(passive.objId, `UserImpl`);
+        return result.Active(context);
     }
     
     return load;
@@ -104,8 +111,8 @@ shared User createUser(Context ctx) {
     "Context should be AppContext, was `ctx`"
     assert (is AppContext ctx);
     value tx = ctx.transaction;
-    value result = tx.create(`UserImpl`);
-    result.context = ctx;
+    value passive = tx.create(`UserImpl`);
+    value result = passive.Active(ctx);
     result.init();
     return result;
 }
@@ -114,11 +121,10 @@ shared User? findUserByName(Context ctx, String userName) {
     "Context should be AppContext, was `ctx`"
     assert (is AppContext ctx);
     value tx = ctx.transaction;
-    print(tx.getAll(`UserImpl`));
-    value usersIndex = tx.queryIndex(`UserImpl`, "userName", `JString`);
+    value usersIndex = tx.queryIndex(`UserImpl`, "userNameField", `JString`);
     value users = usersIndex.asMap().get(javaString(userName));
     if (exists users, !users.empty) {
-        return users.first();
+        return users.first().Active(ctx);
     } else {
         return null;
     }

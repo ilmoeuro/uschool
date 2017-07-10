@@ -32,8 +32,11 @@ import fun.uschool.feature.provider {
 import fun.uschool.user.api {
     Role,
     createUser,
-    User,
-    userLoader
+    userLoader,
+    User
+}
+import fun.uschool.util {
+    Test
 }
 
 import java.lang {
@@ -42,9 +45,6 @@ import java.lang {
 import java.time {
     Instant,
     Clock
-}
-import fun.uschool.util {
-    Test
 }
 
 {[ByteArray, ByteArray, Boolean]*} slowEqualsTestCases => {

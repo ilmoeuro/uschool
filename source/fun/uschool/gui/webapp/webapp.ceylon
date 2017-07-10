@@ -16,25 +16,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 import ceylon.interop.java {
-    javaClass,
-    javaClassFromInstance
+    javaClass
 }
 
 import fun.uschool.feature.provider {
     TestContextProvider
 }
 import fun.uschool.user.api {
-    User,
-    findUserByName
+    findUserByName,
+    User
 }
 import fun.uschool.util {
     SetupContextClassLoader
 }
 
 import java.lang {
-    Class,
-    Thread,
-    ClassLoader
+    Class
 }
 
 import org.apache.wicket {
@@ -59,8 +56,6 @@ import org.apache.wicket.markup.html {
 import org.apache.wicket.request {
     Request
 }
-
-
 
 shared class UschoolHomePage() extends WebPage() {
     shared actual void onConfigure() {

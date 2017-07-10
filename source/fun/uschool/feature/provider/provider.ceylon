@@ -15,37 +15,42 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import fun.uschool.feature.impl {
-    FieldTypeProvider,
-    ModelClassProvider,
-    AppContext
-}
-import org.jsimpledb.core {
-    Database
+import ceylon.interop.java {
+    javaClassFromModel
 }
 import ceylon.language.meta.declaration {
     Module
 }
+
 import com.moandjiezana.toml {
     Toml
 }
+
+import fun.uschool.feature.impl {
+    AppContext,
+    ModelClassProvider,
+    FieldTypeProvider
+}
+
+import java.time {
+    Clock,
+    Instant,
+    ZoneOffset
+}
+
 import org.jsimpledb {
     JSimpleDBFactory,
     ValidationMode {
         automatic
     }
 }
-import java.time {
-    Clock,
-    Instant,
-    ZoneOffset
+import org.jsimpledb.core {
+    Database
 }
 import org.jsimpledb.kv.simple {
     SimpleKVDatabase
 }
-import ceylon.interop.java {
-    javaClassFromModel
-}
+
 shared class TestContextProvider(
     Module subject = `module`,
     Boolean commit = false,
