@@ -67,7 +67,7 @@ shared class InvalidRoleNameException() extends Exception(
     
 }
 
-shared class Role of guest | student | moderator | admin {
+shared class Role of locked | guest | student | moderator | admin {
     
     shared static Role ofName(String name) {
         value ctor = `Role`.getConstructor(name);
@@ -84,6 +84,7 @@ shared class Role of guest | student | moderator | admin {
         this.name = name;
     }
 
+    shared new locked extends named("locked") {}
     shared new guest extends named("guest") {}
     shared new student extends named("student") {}
     shared new moderator extends named("moderator") {}
@@ -93,14 +94,14 @@ shared class Role of guest | student | moderator | admin {
 }
 
 shared User(Context) userLoader(User user) {
-    PassiveUser passive = user.passive;
-
+    value passive = user.passive;
     "Passive user should be JObject, was `passive`"
     assert (is JObject passive);
+    value objId = passive.objId;
     
     User load(Context context) {
         assert (is AppContext context);
-        value result = context.transaction.get(passive.objId, `UserImpl`);
+        value result = context.transaction.get(objId, `UserImpl`);
         return result.Active(context);
     }
     

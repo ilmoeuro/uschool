@@ -52,7 +52,7 @@ import org.jsimpledb.kv.simple {
 }
 
 shared class TestContextProvider(
-    Module subject = `module`,
+    Module subject,
     Boolean commit = false,
     Toml config = Toml(),
     Clock clock = Clock.fixed(Instant.epoch, ZoneOffset.utc)

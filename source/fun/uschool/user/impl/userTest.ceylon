@@ -23,6 +23,10 @@ import ceylon.test {
     parameters
 }
 
+import com.moandjiezana.toml {
+    Toml
+}
+
 import fun.uschool.feature.api {
     Context
 }
@@ -107,6 +111,7 @@ class UserTest() extends Test() {
 			assert (user.lastName == "lastName");
 			assert (user.role == Role.guest);
 			assert (user.created == Instant.epoch);
+			assert (user.modified == Instant.epoch);
 		}
 	}
 
@@ -187,5 +192,12 @@ class UserTest() extends Test() {
 		Boolean shouldEqual
 	) {
 		assert(slowEquals(value1, value2) == shouldEqual);
+	}
+	
+	test
+	shared void testConfig() {
+		value tomlString = "numIterations = 10";
+		Config config = Config(Toml().read(tomlString));
+		assert (config.numIterations == 10);
 	}
 }

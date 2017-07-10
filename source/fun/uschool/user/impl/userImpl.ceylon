@@ -46,7 +46,8 @@ import fun.uschool.user.api {
 
 import java.lang {
     ByteArray,
-    JString=String
+    JString=String,
+    Long
 }
 import java.security {
     SecureRandom
@@ -76,31 +77,7 @@ import org.jsimpledb.core.type {
 
 Integer saltBytes = 32;
 Integer keyLength = saltBytes * 8;
-Integer initialNumIterations = 10_000;
-String secretKeyAlgorithm = "PBKDF2WithHmacSHA256";
-
-shared class Config(Toml config) {
-    
-}
-
-shared class RoleConverter() extends Converter<Role, JString>() {
-    shared actual Role doBackward(JString? name) {
-        "Cannot convert null to role."
-        assert (exists name);
-        return Role.ofName(name.string);
-    }
-    
-    shared actual JString doForward(Role? role) {
-        return javaString(role?.name else "null");
-    }
-}
-
-shared class RoleType() extends StringEncodedType<Role>(
-    javaClass<Role>(),
-    0,
-    RoleConverter()
-) {
-}
+String secretKeyAlgorithm = "PBKDF2WithHmacSHA512";
 
 ByteArray pbkdf2(String password, ByteArray salt, Integer numIterations) {
     SecretKeyFactory secretKeyFactory =
@@ -121,6 +98,30 @@ Boolean slowEquals(ByteArray a, ByteArray b) {
         diff = diff.or((x.xor(y)).unsigned);
     }
     return diff == 0;
+}
+
+shared class Config(Toml toml) {
+    shared Integer numIterations;
+    numIterations = toml.getLong("numIterations", Long(10_000)).longValue();
+}
+
+shared class RoleConverter() extends Converter<Role, JString>() {
+    shared actual Role doBackward(JString? name) {
+        "Cannot convert null to role."
+        assert (exists name);
+        return Role.ofName(name.string);
+    }
+    
+    shared actual JString doForward(Role? role) {
+        return javaString(role?.name else "null");
+    }
+}
+
+shared class RoleType() extends StringEncodedType<Role>(
+    javaClass<Role>(),
+    0,
+    RoleConverter()
+) {
 }
 
 jSimpleClass
@@ -151,6 +152,8 @@ shared abstract class UserImpl() satisfies PassiveUser & JObject {
         "Context should be AppContext, was `ctx`"
         assert (is AppContext ctx);
         
+        Config config = Config(ctx.config);
+        
         onChanged = () => modifiedField = ctx.clock.instant();
 
         shared actual PassiveUser passive => outer;
@@ -174,7 +177,7 @@ shared abstract class UserImpl() satisfies PassiveUser & JObject {
             value random = SecureRandom();
             ByteArray salt = ByteArray(saltBytes, 0.byte);
             random.nextBytes(salt);
-            value iterations = initialNumIterations;
+            value iterations = config.numIterations;
             value key = pbkdf2(password, salt, iterations);
             passwordKey = key;
             passwordSalt = salt;
