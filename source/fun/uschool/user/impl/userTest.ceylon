@@ -16,12 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 import ceylon.interop.java {
-    createJavaByteArray,
-    javaClassFromInstance
+    createJavaByteArray
 }
 import ceylon.test {
-    beforeTest,
-    afterTest,
     test,
     parameters
 }
@@ -38,9 +35,6 @@ import fun.uschool.user.api {
     User,
     userLoader
 }
-import fun.uschool.util {
-    SetupContextClassLoader
-}
 
 import java.lang {
     ByteArray
@@ -48,6 +42,9 @@ import java.lang {
 import java.time {
     Instant,
     Clock
+}
+import fun.uschool.util {
+    Test
 }
 
 {[ByteArray, ByteArray, Boolean]*} slowEqualsTestCases => {
@@ -92,25 +89,10 @@ import java.time {
     [String('\{#0100}'..'\{#01FF}'), ""]
 };
 
-class UserTest() {
-    variable SetupContextClassLoader? setupContextClassLoader = null;
+class UserTest() extends Test() {
     function provider() {
         return TestContextProvider(`module`);
     }
-    
-	beforeTest
-	shared void setupClassLoader() {
-        value classLoader = javaClassFromInstance(this).classLoader;
-        setupContextClassLoader = SetupContextClassLoader(classLoader);
-	}
-	
-	afterTest
-	shared void restoreClassLoader() {
-		if (exists sccl = setupContextClassLoader) {
-			sccl.destroy(null);
-			setupContextClassLoader = null;
-		}
-	}
 	
 	test
 	shared void testCreateUser() {

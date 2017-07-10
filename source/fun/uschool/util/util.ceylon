@@ -1,7 +1,3 @@
-import java.lang {
-    ClassLoader,
-    Thread
-}
 /*
     uschool - worldwide learning platform
     Copyright (2017) Ilmo Euro
@@ -19,6 +15,18 @@ import java.lang {
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+import ceylon.interop.java {
+    javaClassFromInstance
+}
+import ceylon.test {
+    beforeTest,
+    afterTest
+}
+
+import java.lang {
+    ClassLoader,
+    Thread
+}
 shared class SetupContextClassLoader(ClassLoader classLoader)
         satisfies Destroyable {
     value thread = Thread.currentThread();
@@ -28,4 +36,22 @@ shared class SetupContextClassLoader(ClassLoader classLoader)
     shared actual void destroy(Throwable? error) {
         thread.contextClassLoader = originalClassLoader;
     }
+}
+
+shared abstract class Test() {
+    variable SetupContextClassLoader? setupContextClassLoader = null;
+    
+	beforeTest
+	shared void setupClassLoader() {
+        value classLoader = javaClassFromInstance(this).classLoader;
+        setupContextClassLoader = SetupContextClassLoader(classLoader);
+	}
+	
+	afterTest
+	shared void restoreClassLoader() {
+		if (exists sccl = setupContextClassLoader) {
+			sccl.destroy(null);
+			setupContextClassLoader = null;
+		}
+	}
 }
