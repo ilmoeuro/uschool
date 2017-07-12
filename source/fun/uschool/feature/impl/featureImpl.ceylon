@@ -32,7 +32,8 @@ import java.time {
 }
 
 import org.jsimpledb {
-    JTransaction
+    JTransaction,
+    JObject
 }
 import org.jsimpledb.core {
     FieldType
@@ -57,4 +58,26 @@ shared abstract class AppContext(transaction, clock, config)
     shared JTransaction transaction;
     shared Clock clock;
     shared Toml config;
+}
+
+shared Active(Context) loader<Passive, Active>(
+    ClassOrInterface<Passive> cls,
+    Active(Context)(Passive) activate,
+    Passive(Active) passivate,
+    Active obj
+)
+given Passive satisfies Object
+given Active satisfies Object {
+    Passive passive = passivate(obj);
+    "`passive` should be JObject"
+    assert(is JObject passive);
+    value objId = passive.objId;
+    
+    Active load(Context context) {
+        assert (is AppContext context);
+        Passive result = context.transaction.get(objId, cls);
+        return activate(result)(context);
+    }
+    
+    return load;
 }

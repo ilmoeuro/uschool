@@ -18,6 +18,10 @@
 import ceylon.interop.java {
     javaClassFromInstance
 }
+import ceylon.language.meta.model {
+    ValueConstructor,
+    Class
+}
 import ceylon.test {
     beforeTest,
     afterTest
@@ -54,4 +58,17 @@ shared abstract class Test() {
 			setupContextClassLoader = null;
 		}
 	}
+}
+
+shared class InvalidNamedValueException<T>(Class<T> cls, String name)
+        extends Exception("Invalid value constructor for `cls`: `name`") {
+}
+
+shared T namedValue<T>(Class<T> cls, String name) {
+    value ctor = cls.getConstructor(name);
+    if (is ValueConstructor<T> ctor) {
+        return ctor.get();
+    } else {
+        throw InvalidNamedValueException(cls, name);
+    }
 }

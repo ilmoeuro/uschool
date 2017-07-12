@@ -15,6 +15,18 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+import ceylon.interop.java {
+    JavaIterable
+}
+
+import fun.uschool.course.api {
+    realCreateCourse=createCourse,
+    realListCourses=listCourses,
+    realCreateAttendance=createAttendance,
+    realFindAttendance=findAttendance,
+    Course,
+    Attendance
+}
 import fun.uschool.feature.provider {
     TestContextProvider
 }
@@ -34,7 +46,8 @@ import java.io {
     InputStreamReader
 }
 import java.lang {
-    System
+    System,
+    JIterable=Iterable
 }
 import java.time {
     Clock
@@ -49,6 +62,18 @@ shared class Api(provider) {
 
     shared User? findUserByName(String userName) =>
             realFindUserByName(ctx, userName);
+    
+    shared Course createCourse() =>
+            realCreateCourse(ctx);
+    
+    shared JIterable<Course> listCourses() =>
+            JavaIterable(realListCourses(ctx));
+    
+    shared Attendance createAttendance(Course course, User user) =>
+            realCreateAttendance(ctx, course, user);
+    
+    shared Attendance? findAttendance(Course course, User user) =>
+            realFindAttendance(ctx, course, user);
 
     shared void commit() {
         try {
@@ -102,7 +127,7 @@ shared void run() {
              value br = BufferedReader(isr)) {
             shell.evaluate(isr);
          } catch (Exception ex) {
-             printError(ex);
+            printError(ex);
          }
     } else {
         while (exists line = readLine()) {

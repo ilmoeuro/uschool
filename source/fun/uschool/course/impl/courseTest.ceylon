@@ -1,0 +1,54 @@
+/*
+    uschool - worldwide learning platform
+    Copyright (2017) Ilmo Euro
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+import ceylon.test {
+    test,
+    assertThatException
+}
+
+import fun.uschool.course.api {
+    createCourse,
+    createAttendance
+}
+import fun.uschool.feature.provider {
+    TestContextProvider
+}
+import fun.uschool.user.api {
+    createUser
+}
+import fun.uschool.util {
+    Test
+}
+
+class CourseTest() extends Test() {
+    test
+    shared void testUniqueAttendance() {
+        value provider = TestContextProvider {
+            subject = `module`;
+            commit = true;
+        };
+        
+        assertThatException(() {
+            try (ctx = provider.NewContext()) {
+                value course = createCourse(ctx);
+                value user = createUser(ctx);
+                createAttendance(ctx, course, user);
+                createAttendance(ctx, course, user);
+            }
+        }).hasMessage((message) => "uniqueness constraint" in message);
+    }
+}

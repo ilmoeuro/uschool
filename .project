@@ -17,10 +17,6 @@
 					<key>astAwareIncrementalBuilds</key>
 					<value>false</value>
 				</dictionary>
-				<dictionary>
-					<key>systemRepo</key>
-					<value></value>
-				</dictionary>
 			</arguments>
 		</buildCommand>
 	</buildSpec>

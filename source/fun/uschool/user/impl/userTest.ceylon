@@ -94,21 +94,17 @@ import java.time {
 };
 
 class UserTest() extends Test() {
-    function provider() {
-        return TestContextProvider(`module`);
-    }
+    function provider() => TestContextProvider(`module`);
 	
 	test
 	shared void testCreateUser() {
 		try (value ctx = provider().NewContext()) {
 			value user = createUser(ctx);
 			user.userName = "userName";
-			user.firstName = "firstName";
-			user.lastName = "lastName";
+			user.email = "email";
 			user.role = Role.guest;
 			assert (user.userName == "userName");
-			assert (user.firstName == "firstName");
-			assert (user.lastName == "lastName");
+			assert (user.email == "email");
 			assert (user.role == Role.guest);
 			assert (user.created == Instant.epoch);
 			assert (user.modified == Instant.epoch);
@@ -145,8 +141,7 @@ class UserTest() extends Test() {
 		try (value ctx = persistentProvider.NewContext()) {
 			value user = createUser(ctx);
 			user.userName = "userName";
-			user.firstName = "firstName";
-			user.lastName = "lastName";
+			user.email = "email";
 			user.role = Role.guest;
 			loadUser = userLoader(user);
         }
@@ -154,8 +149,7 @@ class UserTest() extends Test() {
             assert (exists loadUser_ = loadUser);
             value user = loadUser_(ctx);
 			assert (user.userName == "userName");
-			assert (user.firstName == "firstName");
-			assert (user.lastName == "lastName");
+			assert (user.email == "email");
 			assert (user.role == Role.guest);
         }
 	}
@@ -175,7 +169,7 @@ class UserTest() extends Test() {
         try (value ctx = persistentProvider.NewContext()) {
             assert (exists loadUser_ = loadUser);
             value user = loadUser_(ctx);
-            user.firstName = "firstName";
+            user.userName = "userName";
         }
         try (value ctx = persistentProvider.NewContext()) {
             assert (exists loadUser_ = loadUser);

@@ -18,18 +18,19 @@
 import ceylon.interop.java {
     javaString
 }
-import ceylon.language.meta.model {
-    ValueConstructor
-}
 
 import fun.uschool.feature.api {
     Context
 }
 import fun.uschool.feature.impl {
-    AppContext
+    AppContext,
+    loader
 }
 import fun.uschool.user.impl {
     UserImpl
+}
+import fun.uschool.util {
+    namedValue
 }
 
 import java.lang {
@@ -39,17 +40,12 @@ import java.time {
     Instant
 }
 
-import org.jsimpledb {
-    JObject
-}
-
 shared interface PassiveUser {
     shared formal class Active(Context ctx) {
         shared formal PassiveUser passive;
 
         shared formal variable String userName;
-        shared formal variable String firstName;
-        shared formal variable String lastName;
+        shared formal variable String email;
         shared formal variable Role role;
         shared formal Instant created;
         shared formal Instant modified;
@@ -69,14 +65,7 @@ shared class InvalidRoleNameException() extends Exception(
 
 shared class Role of locked | guest | student | moderator | admin {
     
-    shared static Role ofName(String name) {
-        value ctor = `Role`.getConstructor(name);
-        if (is ValueConstructor<Role> ctor) {
-            return ctor.get();
-        } else {
-            throw InvalidRoleNameException();
-        }
-    }
+    shared static Role ofName(String name) => namedValue(`Role`, name);
 
     shared String name;
     
@@ -93,20 +82,8 @@ shared class Role of locked | guest | student | moderator | admin {
     string => name;
 }
 
-shared User(Context) userLoader(User user) {
-    value passive = user.passive;
-    "Passive user should be JObject, was `passive`"
-    assert (is JObject passive);
-    value objId = passive.objId;
-    
-    User load(Context context) {
-        assert (is AppContext context);
-        value result = context.transaction.get(objId, `UserImpl`);
-        return result.Active(context);
-    }
-    
-    return load;
-}
+shared User(Context) userLoader(User user) =>
+    loader(`UserImpl`, PassiveUser.Active, User.passive, user);
 
 shared User createUser(Context ctx) {
     "Context should be AppContext, was `ctx`"

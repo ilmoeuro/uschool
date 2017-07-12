@@ -129,9 +129,7 @@ shared abstract class UserImpl() satisfies PassiveUser & JObject {
     jField__GETTER { indexed = true; unique = true; }
     shared formal variable String userNameField;
     jField__GETTER
-    shared formal variable String firstNameField;
-    jField__GETTER
-    shared formal variable String lastNameField;
+    shared formal variable String emailField;
     jField__GETTER
     shared formal variable Role roleField;
     jField__GETTER
@@ -156,16 +154,13 @@ shared abstract class UserImpl() satisfies PassiveUser & JObject {
         
         onChanged = () => modifiedField = ctx.clock.instant();
 
-        shared actual PassiveUser passive => outer;
+        passive => outer;
         
         shared actual String userName => userNameField;
         assign userName => userNameField = userName;
 
-        shared actual String firstName => firstNameField;
-        assign firstName => firstNameField = firstName;
-
-        shared actual String lastName => lastNameField;
-        assign lastName => lastNameField = lastName;
+        shared actual String email => emailField;
+        assign email => emailField = email;
 
         shared actual Role role => roleField;
         assign role => roleField = role;
@@ -193,8 +188,7 @@ shared abstract class UserImpl() satisfies PassiveUser & JObject {
 
         shared void init() {
             userNameField = "";
-            firstNameField = "";
-            lastNameField = "";
+            emailField = "";
             roleField = Role.guest;
             passwordKey = createJavaByteArray{};
             passwordSalt = createJavaByteArray{};
@@ -206,8 +200,7 @@ shared abstract class UserImpl() satisfies PassiveUser & JObject {
         string => toStringHelper("User")
             .add("objId", objId)
             .add("userNameField", userNameField)
-            .add("firstNameField", firstNameField)
-            .add("lastNameField", lastNameField)
+            .add("emailField", emailField)
             .add("roleField", roleField)
             .add("createdField", createdField)
             .add("modifiedField", modifiedField)

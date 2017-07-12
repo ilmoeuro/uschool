@@ -15,11 +15,4 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-native("jvm")
-module fun.uschool.jsimpledb.utils "1.0.0" {
-	shared import java.base "8";
-	shared import maven:"org.jsimpledb":"jsimpledb-main" "3.5.0";
-	
-	import ceylon.interop.java "1.3.2";
-	import ceylon.buffer "1.3.2";
-}
+shared package fun.uschool.course.api;

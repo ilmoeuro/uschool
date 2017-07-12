@@ -110,4 +110,20 @@
     <module groupId="org.apache.wicket" artifactId="wicket-auth-roles">
 	   <share groupId="org.apache.wicket" artifactId="wicket-core" />
     </module>
+    <!-- If we switch to parboiled
+    <module groupId="org.parboiled" artifactId="parboiled-java">
+       <share groupId="org.parboiled" artifactId="parboiled-core" />
+       <share groupId="org.ow2.asm" artifactId="asm-analysis" />
+       <share groupId="org.ow2.asm" artifactId="asm-util" />
+    </module>
+    <module groupId="org.ow2.asm" artifactId="asm-util">
+       <share groupId="org.ow2.asm" artifactId="asm-tree" />
+    </module>
+    <module groupId="org.ow2.asm" artifactId="asm-analysis">
+       <share groupId="org.ow2.asm" artifactId="asm-tree" />
+    </module>
+    <module groupId="org.ow2.asm" artifactId="asm-tree">
+       <share groupId="org.ow2.asm" artifactId="asm" />
+    </module>
+    -->
 </overrides>
