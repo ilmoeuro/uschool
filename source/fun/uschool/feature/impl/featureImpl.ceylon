@@ -58,6 +58,9 @@ shared abstract class AppContext(transaction, clock, config)
     shared JTransaction transaction;
     shared Clock clock;
     shared Toml config;
+    
+    shared formal void commit();
+    shared formal void rollback();
 }
 
 shared Active(Context) loader<Passive, Active>(

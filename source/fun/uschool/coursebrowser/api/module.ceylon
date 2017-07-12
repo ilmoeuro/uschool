@@ -16,15 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 native("jvm")
-module fun.uschool.gui.webapp "1.0.0" {
-	import ceylon.interop.java "1.3.2";
+module fun.uschool.coursebrowser.api "1.0.0" {
+    shared import java.base "8";
+    shared import fun.uschool.feature.api "1.0.0";
+    shared import fun.uschool.user.api "1.0.0";
+    shared import fun.uschool.course.api "1.0.0";
 
-	shared import java.base "8";
-	shared import maven:"org.apache.wicket":"wicket-core" "7.7.0";
-	shared import maven:"org.apache.wicket":"wicket-auth-roles" "7.7.0";
-
-	shared import fun.uschool.feature.provider "1.0.0";
-	shared import fun.uschool.user.api "1.0.0";
-	shared import fun.uschool.user.impl "1.0.0";
-	shared import fun.uschool.util "1.0.0";
+    import fun.uschool.feature.impl "1.0.0";
 }

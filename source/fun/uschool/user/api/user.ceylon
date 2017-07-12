@@ -79,7 +79,7 @@ shared class Role of locked | guest | student | moderator | admin {
     shared new moderator extends named("moderator") {}
     shared new admin extends named("admin") {}
 
-    string => name;
+    string => "Role(``name``)";
 }
 
 shared User(Context) userLoader(User user) =>

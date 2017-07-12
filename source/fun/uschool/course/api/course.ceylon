@@ -17,7 +17,8 @@
 */
 import fun.uschool.course.impl {
     CourseImpl,
-    AttendanceImpl
+    CourseConverter,
+    UserCoursesImpl
 }
 import fun.uschool.feature.api {
     Context
@@ -27,16 +28,21 @@ import fun.uschool.feature.impl {
     loader
 }
 import fun.uschool.user.api {
-    User,
-    PassiveUser
+    User
+}
+import fun.uschool.user.impl {
+    UserImpl
 }
 
 import java.io {
     File
 }
+import java.util {
+    NavigableSet
+}
 
-import org.jsimpledb.tuple {
-    Tuple2
+import org.jsimpledb.util {
+    ConvertedNavigableSet
 }
 
 shared interface Section of Title | Paragraph | Picture {
@@ -95,17 +101,18 @@ shared interface PassiveCourse {
     }
 }
 
-shared interface PassiveAttendance {
+shared interface PassiveUserCourses {
     shared formal class Active(Context ctx) {
-        shared formal PassiveAttendance passive;
+        shared formal PassiveUserCourses passive;
 
-        shared formal Course course;
         shared formal User user;
+        shared formal NavigableSet<Course> courses;
+        shared formal void addCourse(Course course);
     }
 }
 
 shared alias Course => PassiveCourse.Active;
-shared alias Attendance => PassiveAttendance.Active;
+shared alias UserCourses => PassiveUserCourses.Active;
 
 shared Course createCourse(Context ctx) {
     assert (is AppContext ctx);
@@ -120,38 +127,30 @@ shared Course createCourse(Context ctx) {
 shared Course(Context) courseLoader(Course course) =>
     loader(`CourseImpl`, PassiveCourse.Active, Course.passive, course);
 
-shared {Course*} listCourses(Context ctx) {
+shared NavigableSet<Course> listCourses(Context ctx) {
     assert (is AppContext ctx);
     
-    value tx = ctx.transaction;
-    return {for (course in tx.getAll(`CourseImpl`)) course.Active(ctx)};
+    value passives = ctx.transaction.getAll(`CourseImpl`);
+
+    return ConvertedNavigableSet(passives, CourseConverter(ctx));
 }
 
-shared Attendance createAttendance(Context ctx, Course course, User user) {
+shared UserCourses getUserCourses(Context ctx, User user) {
     assert (is AppContext ctx);
 
     value tx = ctx.transaction;
-    value result = tx.create(`AttendanceImpl`).Active(ctx);
-    result.init(course, user);
-    return result;
-}
-
-shared Attendance? findAttendance(Context ctx, Course course, User user) {
-    assert (is AppContext ctx);
     
-    value tx = ctx.transaction;
-    value ix = tx.queryCompositeIndex(
-        `AttendanceImpl`,
-        "byCourseAndUser",
-        `PassiveCourse`,
-        `PassiveUser`);
-    value attendances = ix.asMap().get(Tuple2(course, user));
-    if (!attendances.empty) {
-        return attendances.first().Active(ctx);
+    value ix = tx.queryIndex(`UserCoursesImpl`, "userField", `UserImpl`);
+    value courseses = ix.asMap().get(user.passive);
+    if (!courseses.empty) {
+        return courseses.first().Active(ctx);
     } else {
-        return null;
+        value result = tx.create(`UserCoursesImpl`).Active(ctx);
+        result.init(user);
+        return result;
     }
 }
 
-Attendance(Context) attendanceLoader(Attendance course) =>
-    loader(`AttendanceImpl`, PassiveAttendance.Active, Attendance.passive, course);
+UserCourses(Context) userCoursesLoader(UserCourses course) =>
+    loader(`UserCoursesImpl`, PassiveUserCourses.Active, UserCourses.passive, course);
+

@@ -208,6 +208,12 @@ shared abstract class UserImpl() satisfies PassiveUser & JObject {
             .add("passwordSalt", passwordSalt)
             .add("passwordIterations", passwordIterations)
             .string;
+
+        equals(Object that) => switch (that)
+            case (is UserImpl) that.objId == objId
+            else false;
+        
+        hash => objId.hash;
     }
         
     onChange shared void changed() {

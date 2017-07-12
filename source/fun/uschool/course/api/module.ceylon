@@ -21,6 +21,7 @@ module fun.uschool.course.api "1.0.0" {
     shared import fun.uschool.user.api "1.0.0";
     shared import java.base "8";
 
+    import fun.uschool.user.impl "1.0.0";
     import fun.uschool.course.impl "1.0.0";
     import fun.uschool.util "1.0.0";
     import ceylon.interop.java "1.3.2";

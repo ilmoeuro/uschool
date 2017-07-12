@@ -19,12 +19,20 @@ import ceylon.interop.java {
     javaClass
 }
 
+import fun.uschool.feature.api {
+    Context
+}
+import fun.uschool.feature.impl {
+    AppContext
+}
 import fun.uschool.feature.provider {
     TestContextProvider
 }
 import fun.uschool.user.api {
     findUserByName,
-    User
+    User,
+    createUser,
+    userLoader
 }
 import fun.uschool.util {
     SetupContextClassLoader
@@ -37,7 +45,8 @@ import java.lang {
 import org.apache.wicket {
     Page,
     Application,
-    Session
+    Session,
+    MarkupContainer
 }
 import org.apache.wicket.authroles.authentication {
     AuthenticatedWebApplication,
@@ -53,31 +62,66 @@ import org.apache.wicket.authroles.authorization.strategies.role {
 import org.apache.wicket.markup.html {
     WebPage
 }
+import org.apache.wicket.markup.html.link {
+    Link
+}
+import org.apache.wicket.model {
+    LoadableDetachableModel
+}
 import org.apache.wicket.request {
     Request
 }
 
 shared class UschoolHomePage() extends WebPage() {
+    object loggedInIndicator extends MarkupContainer("loggedInIndicator") {
+    }
+    object loginLink extends Link<Object>("loginLink") {
+        shared actual void onClick() {
+            if (!sess.signedIn) {
+                app.restartResponseAtSignInPage();
+            }
+        }
+    }
+    
+    shared actual void onInitialize() {
+        super.onInitialize();
+        add(loggedInIndicator);
+        add(loginLink);
+    }
+
     shared actual void onConfigure() {
         super.onConfigure();
         
-        if (sess.temporary || !sess.signedIn) {
-            app.restartResponseAtSignInPage();
-        }
+        loggedInIndicator.setVisible(sess.signedIn);
     }
 }
 
 shared class UschoolSession(Request req) extends AuthenticatedWebSession(req) {
+    variable User(Context)? loadUser = null;
+    
     shared actual Boolean authenticate(String? username, String? password) {
         if (exists username, exists password) {
             try (ctx = app.contextProvider.NewContext()) {
                 User? user = findUserByName(ctx, username);
                 if (exists user, user.hasPassword(password)) {
+                    loadUser = userLoader(user);
                     return true;
                 }
             }
         }
         return false;
+    }
+    
+    shared actual void signOut() {
+        loadUser = null;
+    }
+    
+    shared User? loadCurrentUser(Context ctx) {
+        if (exists loadUser_ = loadUser) {
+            return loadUser_(ctx);
+        } else {
+            return null;
+        }
     }
 
     shared actual Roles roles => Roles(Roles.admin);
@@ -92,6 +136,16 @@ shared class UschoolApplication() extends AuthenticatedWebApplication() {
             commit = true;
         };
     }
+    
+    shared actual void init() {
+        markupSettings.setStripWicketTags(true);
+        
+        try (ctx = contextProvider.NewContext()) {
+            value user = createUser(ctx);
+            user.userName = "admin";
+            user.password("admin");
+        }
+    }
 
     shared actual Class<out Page> homePage =>
             javaClass<UschoolHomePage>();
@@ -100,6 +154,24 @@ shared class UschoolApplication() extends AuthenticatedWebApplication() {
     shared actual Class<out AbstractAuthenticatedWebSession> webSessionClass =>
             javaClass<UschoolSession>();
     
+}
+
+shared class ContextProvidingModel<T>(loader) extends LoadableDetachableModel<T>() {
+    T(Context) loader;
+    variable AppContext? context = null;
+    
+    shared actual T load() {
+        value ctx = app.contextProvider.NewContext();
+        context = ctx;
+        return loader(ctx);
+    }
+    
+    shared actual void onDetach() {
+        if (exists ctx = context) {
+            ctx.commit();
+            context = null;
+        }
+    }
 }
 
 UschoolApplication app {

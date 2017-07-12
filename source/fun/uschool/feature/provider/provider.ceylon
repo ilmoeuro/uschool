@@ -80,11 +80,17 @@ shared class TestContextProvider(
         outer.config
     ) {
         shared actual void destroy(Throwable? error) {
-            if (!exists error, commit) {
-                transaction.commit();
+            if (!exists error, outer.commit) {
+                commit();
             } else {
-                transaction.rollback();
+                rollback();
             }
+        }
+        shared actual void commit() {
+            transaction.commit();
+        }
+        shared actual void rollback() {
+            transaction.rollback();
         }
     }
 }

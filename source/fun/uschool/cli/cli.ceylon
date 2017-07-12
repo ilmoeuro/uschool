@@ -15,17 +15,12 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import ceylon.interop.java {
-    JavaIterable
-}
-
 import fun.uschool.course.api {
     realCreateCourse=createCourse,
     realListCourses=listCourses,
-    realCreateAttendance=createAttendance,
-    realFindAttendance=findAttendance,
+    realGetUserCourses=getUserCourses,
     Course,
-    Attendance
+    UserCourses
 }
 import fun.uschool.feature.provider {
     TestContextProvider
@@ -67,17 +62,14 @@ shared class Api(provider) {
             realCreateCourse(ctx);
     
     shared JIterable<Course> listCourses() =>
-            JavaIterable(realListCourses(ctx));
+            realListCourses(ctx);
     
-    shared Attendance createAttendance(Course course, User user) =>
-            realCreateAttendance(ctx, course, user);
-    
-    shared Attendance? findAttendance(Course course, User user) =>
-            realFindAttendance(ctx, course, user);
+    shared UserCourses getUserCourses(User user) =>
+            realGetUserCourses(ctx, user);
 
     shared void commit() {
         try {
-            ctx.destroy(null);
+            ctx.commit();
         } catch (Exception ex) {
             printError(ex);
         }
@@ -87,7 +79,7 @@ shared class Api(provider) {
 
     shared void rollback() {
         try {
-            ctx.destroy(Exception());
+            ctx.rollback();
         } catch (Exception ex) {
             // do nothing
         }
@@ -104,6 +96,7 @@ String? readLine() {
 void printError(Exception ex) {
     process.writeError("ERROR: ");
     process.writeErrorLine(ex.message);
+    ex.printStackTrace();
 }
 
 shared void run() {

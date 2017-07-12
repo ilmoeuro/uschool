@@ -15,16 +15,21 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+import ceylon.interop.java {
+    CeylonIterable
+}
+
 import com.google.common.base {
     MoreObjects {
         toStringHelper
-    }
+    },
+    Converter
 }
 
 import fun.uschool.course.api {
     PassiveCourse,
     Section,
-    PassiveAttendance,
+    PassiveUserCourses,
     Course
 }
 import fun.uschool.feature.api {
@@ -42,18 +47,19 @@ import java.io {
     File,
     FileReader
 }
+import java.util {
+    NavigableSet
+}
 
 import org.jsimpledb {
     JObject
 }
 import org.jsimpledb.annotation {
     jField__GETTER,
-    jSimpleClass,
-    jCompositeIndex
+    jSimpleClass
 }
-
-import ceylon.interop.java {
-    CeylonIterable
+import org.jsimpledb.util {
+    ConvertedNavigableSet
 }
 
 String materialFileName = "material.txt";
@@ -102,50 +108,51 @@ shared abstract class CourseImpl() satisfies PassiveCourse & JObject {
             .add("descriptionField", descriptionField)
             .add("materialFolderField", materialFolderField)
             .string;
+        
+        equals(Object that) => switch (that)
+            case (is CourseImpl) that.objId == objId
+            else false;
+        
+        hash => objId.hash;
     }
 }
 
-jSimpleClass {
-    compositeIndexes = {
-        jCompositeIndex {
-            name = "byCourseAndUser";
-            fields = {"courseField", "userField"};
-        }
-    };
-}
-shared abstract class AttendanceImpl() satisfies PassiveAttendance & JObject {
-    jField__GETTER
-    shared formal variable PassiveCourse courseField;
-    jField__GETTER
+shared abstract class UserCoursesImpl() satisfies PassiveUserCourses & JObject {
+    jField__GETTER { indexed = true; unique = true; }
     shared formal variable PassiveUser userField;
-    jField__GETTER { unique = true; indexed = true; }
-    shared formal variable String uniqueKey;
+    jField__GETTER { indexed = true; }
+    shared formal variable NavigableSet<CourseImpl> coursesField;
     
     shared actual class Active(Context ctx) extends super.Active(ctx) {
         passive => outer;
         
-        shared actual Course course => courseField.Active(ctx);
-        assign course => courseField = course.passive;
-        
         shared actual User user => userField.Active(ctx);
         assign user => userField = user.passive;
+
+        shared actual NavigableSet<Course> courses =>
+                ConvertedNavigableSet(coursesField, CourseConverter(ctx));
         
-        shared void init(Course course, User user) {
-            assert (is JObject passiveCourse = course.passive);
-            assert (is JObject passiveUser = user.passive);
-            value courseId = passiveCourse.objId.asLong();
-            value userId = passiveUser.objId.asLong();
-            courseField = passiveCourse;
-            userField = passiveUser;
-            uniqueKey = "``courseId``,``userId``";
+        shared actual void addCourse(Course course) {
+            assert (is CourseImpl impl = course.passive);
+            coursesField.add(impl);
         }
 
-        string => toStringHelper("Attendance")
+        shared void init(User user) {
+            assert (is JObject passiveUser = user.passive);
+            userField = passiveUser;
+        }
+
+        string => toStringHelper("UserCourses")
             .add("objId", objId)
-            .add("courseField", courseField)
+            .add("coursesField", coursesField)
             .add("userField", userField)
-            .add("uniqueKey", uniqueKey)
             .string;
+
+        equals(Object that) => switch (that)
+            case (is UserCoursesImpl) that.objId == objId
+            else false;
+        
+        hash => objId.hash;
     }
 }
 
@@ -155,6 +162,31 @@ shared class CourseImplModelClassProvider() satisfies ModelClassProvider {
 }
 
 service (`interface ModelClassProvider`)
-shared class AttendanceImplModelClassProvider() satisfies ModelClassProvider {
-    modelClass => `AttendanceImpl`;
+shared class UserCoursesImplModelClassProvider() satisfies ModelClassProvider {
+    modelClass => `UserCoursesImpl`;
+}
+
+shared class CourseConverter(Context ctx) extends Converter<Course, CourseImpl>() {
+    shared actual Course doBackward(CourseImpl? a) {
+        assert (exists a);
+        return a.Active(ctx);
+    }
+    
+    shared actual CourseImpl doForward(Course? a) {
+        assert (exists a);
+        assert (is CourseImpl result = a.passive);
+        return result;
+    }
+}
+
+shared class UserConverter(Context ctx) extends Converter<User, PassiveUser>() {
+    shared actual User doBackward(PassiveUser? a) {
+        assert (exists a);
+        return a.Active(ctx);
+    }
+    
+    shared actual PassiveUser doForward(User? a) {
+        assert (exists a);
+        return a.passive;
+    }
 }
