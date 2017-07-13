@@ -19,10 +19,8 @@ native("jvm")
 module fun.uschool.cli "1.0.0" {
     shared import java.base "8";
     shared import maven:"org.codehaus.groovy":"groovy" "2.4.12";
-    shared import fun.uschool.user.api "1.0.0";
-    shared import fun.uschool.user.impl "1.0.0";
-    shared import fun.uschool.course.api "1.0.0";
-    shared import fun.uschool.course.impl "1.0.0";
+    shared import fun.uschool.user "1.0.0";
+    shared import fun.uschool.course "1.0.0";
     shared import fun.uschool.feature.impl "1.0.0";
     shared import fun.uschool.feature.provider "1.0.0";
 

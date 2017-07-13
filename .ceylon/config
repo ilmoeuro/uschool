@@ -6,4 +6,4 @@ resource=resource
 [defaults]
 overrides=overrides.xml
 encoding=UTF-8
-autoexportmavendependencies=false
+autoexportmavendependencies=true

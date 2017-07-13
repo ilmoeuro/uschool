@@ -16,11 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 native("jvm")
-module fun.uschool.coursebrowser.api "1.0.0" {
-    shared import java.base "8";
+module fun.uschool.user "1.0.0" {
     shared import fun.uschool.feature.api "1.0.0";
-    shared import fun.uschool.user.api "1.0.0";
-    shared import fun.uschool.course.api "1.0.0";
+    shared import java.base "8";
+    // let hibernate discover my classes
+    shared import ceylon.interop.persistence "1.3.2";
 
     import fun.uschool.feature.impl "1.0.0";
+    import fun.uschool.feature.provider "1.0.0";
+    import fun.uschool.util "1.0.0";
+    import ceylon.test "1.3.2";
+    import ceylon.interop.java "1.3.2";
 }

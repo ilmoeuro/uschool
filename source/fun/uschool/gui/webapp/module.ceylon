@@ -24,7 +24,6 @@ module fun.uschool.gui.webapp "1.0.0" {
 	shared import maven:"org.apache.wicket":"wicket-auth-roles" "7.7.0";
 
 	shared import fun.uschool.feature.provider "1.0.0";
-	shared import fun.uschool.user.api "1.0.0";
-	shared import fun.uschool.user.impl "1.0.0";
+	shared import fun.uschool.user "1.0.0";
 	shared import fun.uschool.util "1.0.0";
 }

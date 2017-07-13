@@ -28,11 +28,12 @@ import fun.uschool.feature.impl {
 import fun.uschool.feature.provider {
     TestContextProvider
 }
-import fun.uschool.user.api {
+import fun.uschool.user {
     findUserByName,
     User,
-    createUser,
-    userLoader
+    UserEntity {
+        createUser
+    }
 }
 import fun.uschool.util {
     SetupContextClassLoader
@@ -104,7 +105,7 @@ shared class UschoolSession(Request req) extends AuthenticatedWebSession(req) {
             try (ctx = app.contextProvider.NewContext()) {
                 User? user = findUserByName(ctx, username);
                 if (exists user, user.hasPassword(password)) {
-                    loadUser = userLoader(user);
+                    loadUser = user.loader();
                     return true;
                 }
             }
@@ -132,7 +133,7 @@ shared class UschoolApplication() extends AuthenticatedWebApplication() {
     
     try (SetupContextClassLoader(javaClass<UschoolApplication>().classLoader)) {
         contextProvider = TestContextProvider {
-            subject = `module`; 
+            subject = `class`;
             commit = true;
         };
     }

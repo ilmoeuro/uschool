@@ -20,9 +20,7 @@ module fun.uschool.feature.provider "1.0.0" {
     shared import fun.uschool.feature.api "1.0.0";
     shared import fun.uschool.feature.impl "1.0.0";
 	shared import java.base "8";
-	shared import maven:"org.jsimpledb":"jsimpledb-main" "3.5.0";
-	shared import maven:"org.jsimpledb":"jsimpledb-kv-simple" "3.5.0";
-	shared import maven:"com.moandjiezana.toml":"toml4j" "0.7.1";
+	shared import java.jdbc "8";
 	
 	import ceylon.interop.java "1.3.2";
 	import ceylon.buffer "1.3.2";

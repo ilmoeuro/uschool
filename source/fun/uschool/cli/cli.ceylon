@@ -15,18 +15,20 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import fun.uschool.course.api {
-    realCreateCourse=createCourse,
-    realListCourses=listCourses,
-    realGetUserCourses=getUserCourses,
-    Course,
-    UserCourses
+import fun.uschool.course {
+    CourseEntity {
+        realCreateCourse=createCourse
+    },
+    realListCoursesPage=listCoursesPage,
+    Course
 }
 import fun.uschool.feature.provider {
     TestContextProvider
 }
-import fun.uschool.user.api {
-    realCreateUser=createUser,
+import fun.uschool.user {
+    UserEntity {
+        realCreateUser=createUser
+    },
     realFindUserByName=findUserByName,
     User
 }
@@ -41,8 +43,7 @@ import java.io {
     InputStreamReader
 }
 import java.lang {
-    System,
-    JIterable=Iterable
+    System
 }
 import java.time {
     Clock
@@ -61,11 +62,8 @@ shared class Api(provider) {
     shared Course createCourse() =>
             realCreateCourse(ctx);
     
-    shared JIterable<Course> listCourses() =>
-            realListCourses(ctx);
-    
-    shared UserCourses getUserCourses(User user) =>
-            realGetUserCourses(ctx, user);
+    shared {Course*} listCoursesPage(Integer pageNumber) =>
+            realListCoursesPage(ctx, pageNumber, 10);
 
     shared void commit() {
         try {
@@ -96,7 +94,11 @@ String? readLine() {
 void printError(Exception ex) {
     process.writeError("ERROR: ");
     process.writeErrorLine(ex.message);
-    ex.printStackTrace();
+    value debug =  process.namedArgumentPresent("d")
+                  || process.namedArgumentPresent("debug");
+    if (debug) {
+        ex.printStackTrace();
+    }
 }
 
 shared void run() {
@@ -106,8 +108,8 @@ shared void run() {
             process.namedArgumentPresent("script")
             || process.namedArgumentPresent("s");
     value contextProvider = TestContextProvider {
+        subject = `class Api`;
         commit = true;
-        subject = `module`;
         clock = Clock.systemDefaultZone();
     };
     

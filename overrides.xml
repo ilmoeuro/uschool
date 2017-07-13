@@ -1,16 +1,6 @@
 <overrides xmlns="http://www.ceylon-lang.org/xsd/overrides">
-    <!-- wicket-core happens to use javax.servlet.Filter provided by
-         commons-fileupload, which depends on old servlet-api. This
-         fixes the version conflict. -->
-	 <!--
-    <replace groupId="javax.servlet" artifactId="servlet-api">
-        <with
-			groupId="javax.servlet"
-			artifactId="javax.servlet-api"
-			version="3.1.0"
-			/>
-    </replace>
-	-->
+	<!-- We don't use JSimpleDB anymore -->
+	<!--
     <module groupId="org.jsimpledb" artifactId="jsimpledb-util">
         <share groupId="com.google.guava" artifactId="guava" />
     </module>
@@ -25,20 +15,26 @@
         <share groupId="org.jsimpledb" artifactId="jsimpledb-coreapi" />
         <share groupId="org.dellroad" artifactId="dellroad-stuff-main" />
     </module>
+    -->
+    <!--
     <module groupId="org.eclipse.jetty" artifactId="jetty-io">
         <share groupId="org.eclipse.jetty" artifactId="jetty-util" />
     </module>
     <module groupId="org.eclipse.jetty" artifactId="jetty-server">
         <share groupId="org.eclipse.jetty" artifactId="jetty-io" />
     </module>
+    -->
     <module groupId="org.eclipse.jetty" artifactId="jetty-plus">
         <add
             groupId="org.eclipse.jetty"
             artifactId="jetty-xml"
             version="9.4.0.v20161208"
             shared="true" />
-        <share groupId="org.eclipse.jetty" artifactId="jetty-io" />
-        <share groupId="org.eclipse.jetty" artifactId="jetty-webapp" />
+        <add
+            groupId="org.eclipse.jetty"
+            artifactId="jetty-webapp"
+            version="9.4.0.v20161208"
+            shared="true" />
     </module>
     <module groupId="org.eclipse.jetty" artifactId="jetty-webapp">
         <share groupId="org.eclipse.jetty" artifactId="jetty-servlet" />
@@ -109,6 +105,23 @@
     </module>
     <module groupId="org.apache.wicket" artifactId="wicket-auth-roles">
 	   <share groupId="org.apache.wicket" artifactId="wicket-core" />
+    </module>
+    <module module="ceylon.interop.persistence">
+        <add groupId="org.hibernate"
+              artifactId="hibernate-core"
+              version="5.2.10.Final"
+              shared="true"/>
+        <add groupId="com.h2database"
+             artifactId="h2"
+             version="1.4.196"
+             shared="true"/>
+    </module>
+    <module groupId="org.hibernate"
+            artifactId="hibernate-core">
+        <add groupId="javax.transaction"
+             artifactId="jta"
+             version="1.1"
+             shared="true"/>
     </module>
     <!-- If we switch to parboiled
     <module groupId="org.parboiled" artifactId="parboiled-java">

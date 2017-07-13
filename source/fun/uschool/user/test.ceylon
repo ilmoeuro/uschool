@@ -33,11 +33,10 @@ import fun.uschool.feature.api {
 import fun.uschool.feature.provider {
     TestContextProvider
 }
-import fun.uschool.user.api {
-    Role,
-    createUser,
-    userLoader,
-    User
+import fun.uschool.user {
+    UserEntity {
+        createUser
+    }
 }
 import fun.uschool.util {
     Test
@@ -94,7 +93,9 @@ import java.time {
 };
 
 class UserTest() extends Test() {
-    function provider() => TestContextProvider(`module`);
+    function provider() => TestContextProvider(
+        `class`
+    );
 	
 	test
 	shared void testCreateUser() {
@@ -134,8 +135,8 @@ class UserTest() extends Test() {
     test
     shared void testUserLoader() {
         value persistentProvider = TestContextProvider {
+            subject = `class`;
             commit = true;
-            subject = `module`;
         };
 		variable User(Context)? loadUser = null;
 		try (value ctx = persistentProvider.NewContext()) {
@@ -143,7 +144,7 @@ class UserTest() extends Test() {
 			user.userName = "userName";
 			user.email = "email";
 			user.role = Role.guest;
-			loadUser = userLoader(user);
+			loadUser = user.loader();
         }
         try (value ctx = persistentProvider.NewContext()) {
             assert (exists loadUser_ = loadUser);
@@ -157,14 +158,14 @@ class UserTest() extends Test() {
     test
     shared void testModified() {
         value persistentProvider = TestContextProvider {
+            subject = `class`;
             commit = true;
-            subject = `module`;
             clock = Clock.systemUTC();
         };
 		variable User(Context)? loadUser = null;
         try (value ctx = persistentProvider.NewContext()) {
 			value user = createUser(ctx);
-			loadUser = userLoader(user);
+			loadUser = user.loader();
 		}
         try (value ctx = persistentProvider.NewContext()) {
             assert (exists loadUser_ = loadUser);

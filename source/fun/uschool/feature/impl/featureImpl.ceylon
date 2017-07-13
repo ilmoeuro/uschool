@@ -15,8 +15,11 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+import ceylon.interop.persistence {
+    EntityManager
+}
 import ceylon.language.meta.model {
-    ClassOrInterface
+    Class
 }
 
 import com.moandjiezana.toml {
@@ -31,56 +34,30 @@ import java.time {
     Clock
 }
 
-import org.jsimpledb {
-    JTransaction,
-    JObject
-}
-import org.jsimpledb.core {
-    FieldType
-}
-
-shared interface ModelClassProvider {
-    shared formal ClassOrInterface<Object> modelClass;
-}
-
-shared interface FieldTypeProvider {
-    shared formal FieldType<out Object> fieldType;
-}
-
-shared class AlreadyReleasedException() extends Exception(
-    "Context is already released"
-) {
-}
-
-shared abstract class AppContext(transaction, clock, config)
-        satisfies Context & Destroyable {
-
-    shared JTransaction transaction;
-    shared Clock clock;
-    shared Toml config;
+shared interface AppContext satisfies Context & Destroyable {
+    shared formal EntityManager entityManager;
+    shared formal Clock clock;
+    shared formal Toml config;
     
     shared formal void commit();
     shared formal void rollback();
 }
 
-shared Active(Context) loader<Passive, Active>(
-    ClassOrInterface<Passive> cls,
-    Active(Context)(Passive) activate,
-    Passive(Active) passivate,
-    Active obj
-)
-given Passive satisfies Object
-given Active satisfies Object {
-    Passive passive = passivate(obj);
-    "`passive` should be JObject"
-    assert(is JObject passive);
-    value objId = passive.objId;
+shared Active(Context) makeLoader<Passive, Active>(
+        Class<Passive> entityClass,
+        Active(Context)(Passive) activate,
+        Object primaryKey)
+    given Passive satisfies Object
+    given Active satisfies Object {
     
-    Active load(Context context) {
+    Active result(Context context) {
         assert (is AppContext context);
-        Passive result = context.transaction.get(objId, cls);
-        return activate(result)(context);
+
+        value passive = context.entityManager.find(entityClass, primaryKey);
+        assert (exists passive);
+
+        return activate(passive)(context);
     }
     
-    return load;
+    return result;
 }

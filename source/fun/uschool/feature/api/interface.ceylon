@@ -19,3 +19,7 @@
 shared interface Context {
 
 }
+
+shared interface ModelClassNameProvider {
+    shared formal String modelClassName;
+}

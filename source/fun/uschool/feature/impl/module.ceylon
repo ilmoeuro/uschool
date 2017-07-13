@@ -19,8 +19,7 @@ native("jvm")
 module fun.uschool.feature.impl "1.0.0" {
     shared import fun.uschool.feature.api "1.0.0";
 	shared import java.base "8";
-	shared import maven:"org.jsimpledb":"jsimpledb-main" "3.5.0";
-	shared import maven:"org.jsimpledb":"jsimpledb-kv-simple" "3.5.0";
+	shared import ceylon.interop.persistence "1.3.2";
 	shared import maven:"com.moandjiezana.toml":"toml4j" "0.7.1";
 	
 	import ceylon.interop.java "1.3.2";
