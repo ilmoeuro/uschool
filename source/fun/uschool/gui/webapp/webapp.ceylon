@@ -26,7 +26,7 @@ import fun.uschool.feature.impl {
     AppContext
 }
 import fun.uschool.feature.provider {
-    TestContextProvider
+    ContextProvider
 }
 import fun.uschool.user {
     findUserByName,
@@ -129,10 +129,10 @@ shared class UschoolSession(Request req) extends AuthenticatedWebSession(req) {
 }
 
 shared class UschoolApplication() extends AuthenticatedWebApplication() {
-    shared TestContextProvider contextProvider;
+    shared ContextProvider contextProvider;
     
     try (SetupContextClassLoader(javaClass<UschoolApplication>().classLoader)) {
-        contextProvider = TestContextProvider {
+        contextProvider = ContextProvider {
             subject = `class`;
             commit = true;
         };

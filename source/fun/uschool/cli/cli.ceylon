@@ -23,7 +23,7 @@ import fun.uschool.course {
     Course
 }
 import fun.uschool.feature.provider {
-    TestContextProvider
+    ContextProvider
 }
 import fun.uschool.user {
     UserEntity {
@@ -50,7 +50,7 @@ import java.time {
 }
 
 shared class Api(provider) {
-    TestContextProvider provider;
+    ContextProvider provider;
     variable value ctx = provider.NewContext();
     
     shared User createUser() =>
@@ -107,7 +107,7 @@ shared void run() {
     value script =
             process.namedArgumentPresent("script")
             || process.namedArgumentPresent("s");
-    value contextProvider = TestContextProvider {
+    value contextProvider = ContextProvider {
         subject = `class Api`;
         commit = true;
         clock = Clock.systemDefaultZone();

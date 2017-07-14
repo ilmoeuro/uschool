@@ -189,7 +189,7 @@ JMap<out Object, out Object> hibernateConfig(Toml config) {
     return result;
 }
 
-shared class TestContextProvider(
+shared class ContextProvider(
     ClassOrInterfaceDeclaration subject,
     Boolean commit = false,
     Toml config = Toml(),

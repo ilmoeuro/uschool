@@ -31,7 +31,7 @@ import fun.uschool.feature.api {
     Context
 }
 import fun.uschool.feature.provider {
-    TestContextProvider
+    ContextProvider
 }
 import fun.uschool.user {
     UserEntity {
@@ -93,7 +93,7 @@ import java.time {
 };
 
 class UserTest() extends Test() {
-    function provider() => TestContextProvider(
+    function provider() => ContextProvider(
         `class`
     );
 	
@@ -134,7 +134,7 @@ class UserTest() extends Test() {
 
     test
     shared void testUserLoader() {
-        value persistentProvider = TestContextProvider {
+        value persistentProvider = ContextProvider {
             subject = `class`;
             commit = true;
         };
@@ -157,7 +157,7 @@ class UserTest() extends Test() {
 
     test
     shared void testModified() {
-        value persistentProvider = TestContextProvider {
+        value persistentProvider = ContextProvider {
             subject = `class`;
             commit = true;
             clock = Clock.systemUTC();
