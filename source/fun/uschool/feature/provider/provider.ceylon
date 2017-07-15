@@ -149,7 +149,9 @@ class UschoolPersistenceUnitInfo(
             null;
 }
 
-JMap<out Object, out Object> hibernateConfig(Toml config) {
+JMap<out Object, out Object> hibernateConfig(config) {
+    Toml config;
+
     Toml dbTable = config.getTable("db") else Toml();
     
     function conf(String key, String default) {
@@ -158,7 +160,7 @@ JMap<out Object, out Object> hibernateConfig(Toml config) {
     
     value result = JHashMap<JString, Object>();
     
-    void put(String key, String|Boolean|Integer val) {
+    void put(String key, Object val) {
         switch (val)
         case (is String) {
             result.put(JString(key), JString(val));
@@ -169,8 +171,12 @@ JMap<out Object, out Object> hibernateConfig(Toml config) {
         case (is Integer) {
             result.put(JString(key), JInteger(val));
         }
+        else {
+            result.put(JString(key), val);
+        }
     }
 
+    // if you have a DataSource, you can pass it as `datasource` parameter
     put(jpaJdbcDriver, conf("driver", "org.h2.Driver"));
     put(jpaJdbcUrl, conf("url", "jdbc:h2:mem:"));
     put(jpaJdbcUser, conf("user", "sa"));

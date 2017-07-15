@@ -16,17 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 native("jvm")
-module fun.uschool.course "1.0.0" {
-    shared import fun.uschool.feature.api "1.0.0";
-    shared import fun.uschool.user "1.0.0";
+module fun.uschool.courselist "1.0.0" {
+    shared import fun.uschool.course "1.0.0";
     shared import java.base "8";
-    // let hibernate discover my classes
-    shared import fun.uschool.feature.impl "1.0.0";
-
-    import ceylon.interop.java "1.3.2";
-    import ceylon.test "1.3.2";
-    import fun.uschool.util "1.0.0";
-    import fun.uschool.feature.provider "1.0.0";
-
-    import maven:"org.jparsec":"jparsec" "3.0";
+    shared import fun.uschool.feature.api "1.0.0";
 }

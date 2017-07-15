@@ -15,6 +15,13 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+import ceylon.interop.java {
+    CeylonIterable
+}
+
+import fun.uschool.course.materialparser {
+    section
+}
 import fun.uschool.feature.api {
     Context,
     ModelClassNameProvider
@@ -23,9 +30,13 @@ import fun.uschool.feature.impl {
     makeLoader,
     AppContext
 }
+import fun.uschool.util {
+    namedValue
+}
 
 import java.io {
-    File
+    File,
+    FileReader
 }
 import java.time {
     Instant
@@ -44,12 +55,13 @@ import javax.persistence {
     namedQuery
 }
 
-shared interface Section of Title | Paragraph | Picture {
-    shared formal String content;
+String materialFileName = "material.txt";
+
+shared interface Section of Title | Paragraph | Picture | MultiSelectExercise {
 }
 
 shared class Title(content) satisfies Section {
-    shared actual String content;
+    shared String content;
     
     string => "Title(``content``)";
     
@@ -62,7 +74,7 @@ shared class Title(content) satisfies Section {
 }
 
 shared class Paragraph(content) satisfies Section {
-    shared actual String content;
+    shared String content;
     
     string => "Paragraph(``content``)";
 
@@ -76,7 +88,6 @@ shared class Paragraph(content) satisfies Section {
 
 shared class Picture(identifier) satisfies Section {
     String identifier;
-    shared actual String content = "";
 
     string => "Picture(``identifier``)";
 
@@ -86,6 +97,53 @@ shared class Picture(identifier) satisfies Section {
             else false;
     
     hash => identifier.hash;
+}
+
+shared class Correctness of correct | incorrect {
+    shared static Correctness ofName(String name) => namedValue(`Correctness`, name);
+
+    shared String name;
+    
+    abstract new named(String name) {
+        this.name = name;
+    }
+
+    shared new correct extends named("correct") {
+        
+    }
+    shared new incorrect extends named("incorrect") {
+        
+    }
+    
+    string => "Correctness(``name``)";
+}
+
+shared class ExerciseField(choice, correctness) {
+    shared String choice;
+    shared Correctness correctness;
+    
+    string => "ExerciseField(``choice``, ``correctness``)";
+    
+    equals(Object that) => 
+        if (is ExerciseField that)
+            then choice == that.choice
+              && correctness == that.correctness 
+            else false;
+    
+    hash => choice.hash * 37 + correctness.hash;
+}
+
+shared class MultiSelectExercise(choices) satisfies Section {
+    shared {ExerciseField*} choices;
+
+    string => "MultiSelectExercise(``choices``)";
+
+    equals(Object that) => 
+        if (is MultiSelectExercise that)
+            then [*choices] == [*that.choices]
+            else false;
+    
+    hash => choices.hash;
 }
 
 shared alias Course => CourseEntity.Active;
@@ -174,7 +232,16 @@ shared class CourseEntity {
         shared File? materialFolder => outer.materialFolder;
         assign materialFolder => outer.materialFolder = materialFolder;
 
-        shared {Section*} sections => {};
+        shared {Section*} sections {
+            if (exists folder = materialFolder) {
+                value materialFile = File(folder, materialFileName);
+                try (reader = FileReader(materialFile)) {
+                    return CeylonIterable(section.many().parse(reader));
+                }
+            } else {
+                return {};
+            }
+        }
 
         shared Course(Context) loader() => makeLoader(
             `CourseEntity`,
@@ -191,6 +258,8 @@ shared class CourseEntity {
                 title = ``title``,
                 description = ``description``,
                 materialFolder = ``materialFolder else "<null>"``,
+                created = ``created``,
+                modified = ``modified``,
              )";
     }
 }
