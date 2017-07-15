@@ -93,6 +93,9 @@ shared class Role of locked | guest | student | moderator | admin {
     string => "Role(``name``)";
 }
 
+shared User createUser(Context ctx) =>
+    UserEntity.createUser(ctx);
+
 shared User? findUserByName(Context ctx, String userName) {
     assert (is AppContext ctx);
     

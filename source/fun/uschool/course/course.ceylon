@@ -34,6 +34,9 @@ import fun.uschool.util {
     namedValue
 }
 
+import java.lang {
+    JLong = Long
+}
 import java.io {
     File,
     FileReader
@@ -155,8 +158,12 @@ shared {Course*} listCoursesPage(
 ) {
     assert (is AppContext ctx);
     
+    if (pageNum < 0) {
+        return {};
+    }
+    
     value query = ctx.entityManager.createNamedTypedQuery(
-        "listAll",
+        "listAllCourses",
         `CourseEntity`);
     query.setFirstResult(pageNum*pageSize);
     query.setMaxResults(pageSize);
@@ -164,16 +171,40 @@ shared {Course*} listCoursesPage(
     return results.map((c) => c.Active(ctx));
 }
 
+shared Integer countCourses(Context ctx) {
+    assert (is AppContext ctx);
+    
+    value query = ctx.entityManager.createNamedTypedQuery(
+        "countCourses",
+        `JLong`);
+    value result = query.getSingleResult();
+    "countCourses didn't return any results"
+    assert(exists result);
+    return result.longValue();
+}
+
+shared Course createCourse(Context ctx) =>
+    CourseEntity.createCourse(ctx);
+
 entity {
     name = "Course";
 }
 namedQueries {
     namedQuery {
         name=
-            "listAll";
+            "listAllCourses";
         query=
             "SELECT
                 c
+             FROM
+                Course c";
+    },
+    namedQuery {
+        name=
+            "countCourses";
+        query=
+            "SELECT
+                COUNT(c)
              FROM
                 Course c";
     }

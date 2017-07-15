@@ -30,10 +30,8 @@ import fun.uschool.feature.provider {
 }
 import fun.uschool.user {
     findUserByName,
-    User,
-    UserEntity {
-        createUser
-    }
+    createUser,
+    User
 }
 import fun.uschool.util {
     SetupContextClassLoader
@@ -76,6 +74,7 @@ import org.apache.wicket.request {
 shared class UschoolHomePage() extends WebPage() {
     object loggedInIndicator extends MarkupContainer("loggedInIndicator") {
     }
+
     object loginLink extends Link<Object>("loginLink") {
         shared actual void onClick() {
             if (!sess.signedIn) {
@@ -83,17 +82,26 @@ shared class UschoolHomePage() extends WebPage() {
             }
         }
     }
+
+    object logoutLink extends Link<Object>("logoutLink") {
+        shared actual void onClick() {
+            sess.invalidate();
+        }
+    }
     
     shared actual void onInitialize() {
         super.onInitialize();
         add(loggedInIndicator);
         add(loginLink);
+        add(logoutLink);
     }
 
     shared actual void onConfigure() {
         super.onConfigure();
         
         loggedInIndicator.setVisible(sess.signedIn);
+        loginLink.setVisible(!sess.signedIn);
+        logoutLink.setVisible(sess.signedIn);
     }
 }
 
@@ -154,7 +162,6 @@ shared class UschoolApplication() extends AuthenticatedWebApplication() {
             javaClass<SignInPage>();
     shared actual Class<out AbstractAuthenticatedWebSession> webSessionClass =>
             javaClass<UschoolSession>();
-    
 }
 
 shared class ContextProvidingModel<T>(loader) extends LoadableDetachableModel<T>() {

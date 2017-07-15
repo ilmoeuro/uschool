@@ -33,11 +33,6 @@ import fun.uschool.feature.api {
 import fun.uschool.feature.provider {
     ContextProvider
 }
-import fun.uschool.user {
-    UserEntity {
-        createUser
-    }
-}
 import fun.uschool.util {
     Test
 }

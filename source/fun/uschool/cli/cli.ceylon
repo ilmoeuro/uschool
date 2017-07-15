@@ -16,9 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 import fun.uschool.course {
-    CourseEntity {
-        realCreateCourse=createCourse
-    },
+    realCreateCourse=createCourse,
     realListCoursesPage=listCoursesPage,
     Course
 }
@@ -26,9 +24,7 @@ import fun.uschool.feature.provider {
     ContextProvider
 }
 import fun.uschool.user {
-    UserEntity {
-        realCreateUser=createUser
-    },
+    realCreateUser=createUser,
     realFindUserByName=findUserByName,
     User
 }

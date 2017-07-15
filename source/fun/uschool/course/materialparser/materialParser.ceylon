@@ -35,6 +35,10 @@ import fun.uschool.course {
     }
 }
 
+import java.lang {
+    Void
+}
+
 import org.jparsec {
     Parser,
     Parsers {
@@ -53,6 +57,9 @@ import org.jparsec.pattern {
     }
 }
 
+shared Parser<Void> emptyLine =
+        literal(" ").skipMany().followedBy(literal("\n"));
+
 shared Parser<Title> title =
     literal(" ").many()
         .followedBy(literal("#"))
@@ -60,20 +67,20 @@ shared Parser<Title> title =
         .next(
             isChar(notAmong("\n")).many().source()
             .map((v) => Title(v.string)))
-        .followedBy(literal("\n").many());
+        .followedBy(emptyLine.many());
 
+// TODO handle empty lines in paragraphs
 shared Parser<Paragraph> paragraph =
     literal(" ").many()
-        .next(isChar(isAlphaNumeric))
-        .source()
-        .next((h) =>
-            or(
-                isChar(notAmong("\n")),
-                literal("\n").notFollowedBy(literal("\n")))
-            .many()
-            .source()
-            .map((t) => Paragraph(h.string + t.string)))
-        .followedBy(literal("\n").many());
+    .next(isChar(isAlphaNumeric))
+    .next(
+        or(
+            isChar(notAmong("\n")),
+            literal("\n").notFollowedBy(literal("\n")))
+        .many())
+    .source()
+    .map((s) => Paragraph(s.string))
+    .followedBy(literal("\n").many());
 
 shared Parser<Picture> picture =
     literal(" ").many()
@@ -85,7 +92,7 @@ shared Parser<Picture> picture =
             isChar(notAmong(" \n")).many().source()
             .map((v) => Picture(v.string)))
         .followedBy(literal(" ").many())
-        .followedBy(literal("\n").many());
+        .followedBy(emptyLine.many());
 
 shared Parser<ExerciseField> multiSelectField =
     literal(" ").many()
@@ -99,12 +106,12 @@ shared Parser<ExerciseField> multiSelectField =
         .next((correct) =>
             isChar(notAmong("\n")).many().source()
             .map((choice) => ExerciseField(choice.string, correct)))
-        .followedBy(literal("\n").many());
+        .followedBy(emptyLine.many());
         
 shared Parser<MultiSelectExercise> multiSelectExercise =
     multiSelectField
         .many()
-        .followedBy(literal("\n").many())
+        .followedBy(emptyLine.many())
         .map((fields) => MultiSelectExercise(CeylonList(fields)));
 
 shared Parser<out Section> section =
@@ -165,21 +172,21 @@ shared void testCombination() {
                     this is paragraph
                     paragraph continues
 
-                    
+
                     another paragraph
                     paragraph continues
-                    
+
                     *picture: picId
-                    
+
                     # this is another title
                     paragraph continues right after
-                    
+
                     [ ] incorrect field
                     [x] correct field
                     [ ] another incorrect field
-                    
+
                     yet another paragraph
-                    
+
                     [*] correct field";
     value actual = CeylonList(section.many().parse(sample));
     
@@ -201,8 +208,5 @@ shared void testCombination() {
         }
     };
     
-    assert (actual.size == expected.size);
-    for ([actualElem, expectedElem] in zipPairs(actual, expected)) {
-        assert (actualElem == expectedElem);
-    }
+    assert ([*actual] == [*expected]);
 }
