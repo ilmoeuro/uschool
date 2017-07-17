@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 native("jvm")
-module fun.uschool.gui.server "1.0.0" {
+module fun.uschool.server "1.0.0" {
 	shared import java.base "8";
 	shared import ceylon.interop.java "1.3.2";
     shared import maven:"javax.servlet:javax.servlet-api" "3.1.0";
@@ -26,5 +26,5 @@ module fun.uschool.gui.server "1.0.0" {
 	shared import maven:"org.eclipse.jetty:jetty-util" "9.4.0.v20161208";
 	shared import maven:"org.eclipse.jetty:jetty-rewrite" "9.4.0.v20161208";
 	shared import maven:"org.eclipse.jetty:jetty-servlets" "9.4.0.v20161208";
-	shared import fun.uschool.gui.webapp "1.0.0";
+	shared import fun.uschool.webapp "1.0.0";
 }

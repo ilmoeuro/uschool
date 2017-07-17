@@ -15,4 +15,19 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-shared package fun.uschool.gui.server;
+native("jvm")
+module fun.uschool.webapp "1.0.0" {
+	import ceylon.interop.java "1.3.2";
+
+	shared import java.base "8";
+
+	shared import fun.uschool.feature.provider "1.0.0";
+	shared import fun.uschool.user "1.0.0";
+	shared import fun.uschool.course "1.0.0";
+	shared import fun.uschool.courselist "1.0.0";
+	shared import fun.uschool.util "1.0.0";
+	shared import fun.uschool.wicket "1.0.0";
+	
+	shared import maven:"org.webjars.npm":"purecss" "1.0.0";
+	shared import maven:"de.agilecoders.wicket.webjars":"wicket-webjars" "0.5.6";
+}
