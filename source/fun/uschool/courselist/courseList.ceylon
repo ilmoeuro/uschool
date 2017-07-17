@@ -24,7 +24,8 @@ import fun.uschool.feature.api {
     Context
 }
 import fun.uschool.wicket {
-    CompoundPanel
+    CompoundPanel,
+    LessResource
 }
 
 import java.util {
@@ -46,6 +47,13 @@ import org.apache.wicket.markup.html.list {
 }
 import org.apache.wicket.model {
     PropertyModel
+}
+import org.apache.wicket.request.resource {
+    ResourceReference
+}
+import org.apache.wicket.markup.head {
+    IHeaderResponse,
+    CssHeaderItem
 }
 
 shared class Page(index) {
@@ -108,6 +116,17 @@ shared class CourseListPanel(id) extends CompoundPanel<CourseList>(id) {
             item.add(title);
             item.add(description);
         }
+    }
+    
+    object lessReference extends ResourceReference(
+        `CourseListPanel`,
+        "CourseListPanel.less"
+    ) {
+        resource = LessResource(`module`, "CourseListPanel.less");
+    }
+    
+    shared actual void renderHead(IHeaderResponse response) {
+        response.render(CssHeaderItem.forReference(lessReference));
     }
     
     shared actual void onInitialize() {

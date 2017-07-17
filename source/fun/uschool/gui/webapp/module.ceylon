@@ -27,4 +27,7 @@ module fun.uschool.gui.webapp "1.0.0" {
 	shared import fun.uschool.courselist "1.0.0";
 	shared import fun.uschool.util "1.0.0";
 	shared import fun.uschool.wicket "1.0.0";
+	
+	shared import maven:"org.webjars.npm":"purecss" "1.0.0";
+	shared import maven:"de.agilecoders.wicket.webjars":"wicket-webjars" "0.5.6";
 }

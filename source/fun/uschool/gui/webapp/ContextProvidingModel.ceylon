@@ -15,13 +15,30 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-native("jvm")
-module fun.uschool.wicket "1.0.0" {
-    shared import java.base "8";
-	shared import maven:"org.apache.wicket":"wicket-core" "7.7.0";
-	shared import maven:"org.apache.wicket":"wicket-auth-roles" "7.7.0";
+import org.apache.wicket.model {
+    LoadableDetachableModel
+}
+import fun.uschool.feature.api {
+    Context
+}
+import fun.uschool.feature.impl {
+    AppContext
+}
 
-	import ceylon.interop.java "1.3.2";
-	import ceylon.buffer "1.3.2";
-	import maven:"com.github.sommeri":"less4j" "1.17.2";
+shared class ContextProvidingModel<T>(loader) extends LoadableDetachableModel<T>() {
+    T(Context) loader;
+    variable AppContext? context = null;
+    
+    shared actual T load() {
+        value ctx = app.contextProvider.NewContext();
+        context = ctx;
+        return loader(ctx);
+    }
+    
+    shared actual void onDetach() {
+        if (exists ctx = context) {
+            ctx.commit();
+            context = null;
+        }
+    }
 }
