@@ -197,7 +197,9 @@ namedQueries {
             "SELECT
                 c
              FROM
-                Course c";
+                Course c
+             ORDER BY
+                c.created";
     },
     namedQuery {
         name=

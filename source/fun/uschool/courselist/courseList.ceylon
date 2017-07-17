@@ -15,12 +15,6 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import java.util {
-    JList = List,
-    Arrays {
-        jList = asList
-    }
-}
 import fun.uschool.course {
     listCoursesPage,
     Course,
@@ -29,16 +23,50 @@ import fun.uschool.course {
 import fun.uschool.feature.api {
     Context
 }
-shared class CourseList() {
+import fun.uschool.wicket {
+    CompoundPanel
+}
+
+import java.util {
+    JList=List,
+    Arrays {
+        jList=asList
+    }
+}
+
+import org.apache.wicket.markup.html.basic {
+    Label
+}
+import org.apache.wicket.markup.html.form {
+    DropDownChoice
+}
+import org.apache.wicket.markup.html.list {
+    PropertyListView,
+    ListItem
+}
+import org.apache.wicket.model {
+    PropertyModel
+}
+
+shared class Page(index) {
+    shared Integer index;
+    shared Integer number = index + 1;
+
+    string =>
+            "Page #``number``";
+    equals(Object other) =>
+            if (is Page other) then index == other.index else false;
+    hash =>
+            index.hash;
+}
+
+shared class PassiveCourseList() {
     variable Integer pageNumber = 0;
     Integer pageSize = 10;
     
     shared class Active(Context ctx) {
         shared {Course*} courses =>
             listCoursesPage(ctx, outer.pageNumber, pageSize);
-        
-        shared JList<Course> coursesList =>
-            jList(*courses);
         
         shared Integer numPages =>
             let (count = countCourses(ctx))
@@ -48,7 +76,44 @@ shared class CourseList() {
                     then count/pageSize
                 else count/pageSize + 1;
         
-        shared Integer pageNumber => outer.pageNumber;
-        assign pageNumber => outer.pageNumber = pageNumber;
+        shared JList<Course> coursesList =>
+            jList(*courses);
+        
+        shared Page page => Page(pageNumber);
+        assign page => pageNumber = page.index;
+        
+        shared JList<Page> pagesList =>
+            jList (for (i in 0:numPages) Page(i));
+    }
+}
+
+shared alias CourseList => PassiveCourseList.Active;
+
+shared class CourseListPanel(id) extends CompoundPanel<CourseList>(id) {
+    String id;
+    
+    object page extends DropDownChoice<Page>("page") {
+        wantOnSelectionChangedNotifications() => true;
+    }
+    
+    object coursesList extends PropertyListView<Course>("coursesList") {
+        shared actual void populateItem(ListItem<Course> item) {
+            object title extends Label("title") {
+                
+            }
+            object description extends Label("description") {
+                
+            }
+
+            item.add(title);
+            item.add(description);
+        }
+    }
+    
+    shared actual void onInitialize() {
+        super.onInitialize();
+        page.setChoices(PropertyModel(model, "pagesList"));
+        add(page);
+        add(coursesList);
     }
 }

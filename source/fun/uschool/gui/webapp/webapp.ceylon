@@ -19,6 +19,14 @@ import ceylon.interop.java {
     javaClass
 }
 
+import fun.uschool.course {
+    createCourse
+}
+import fun.uschool.courselist {
+    PassiveCourseList,
+    CourseList,
+    CourseListPanel
+}
 import fun.uschool.feature.api {
     Context
 }
@@ -44,8 +52,7 @@ import java.lang {
 import org.apache.wicket {
     Page,
     Application,
-    Session,
-    MarkupContainer
+    Session
 }
 import org.apache.wicket.authroles.authentication {
     AuthenticatedWebApplication,
@@ -61,47 +68,38 @@ import org.apache.wicket.authroles.authorization.strategies.role {
 import org.apache.wicket.markup.html {
     WebPage
 }
-import org.apache.wicket.markup.html.link {
-    Link
-}
 import org.apache.wicket.model {
-    LoadableDetachableModel
+    LoadableDetachableModel,
+    CompoundPropertyModel
 }
 import org.apache.wicket.request {
     Request
 }
 
-shared class UschoolHomePage() extends WebPage() {
-    object loggedInIndicator extends MarkupContainer("loggedInIndicator") {
-    }
+shared class HomePageModel() {
+    value courseList = PassiveCourseList();
+    
+    shared class Active(Context ctx) {
 
-    object loginLink extends Link<Object>("loginLink") {
-        shared actual void onClick() {
-            if (!sess.signedIn) {
-                app.restartResponseAtSignInPage();
-            }
-        }
-    }
+        shared CourseList courseList =
+            outer.courseList.Active(ctx);
 
-    object logoutLink extends Link<Object>("logoutLink") {
-        shared actual void onClick() {
-            sess.invalidate();
-        }
+    }
+}
+
+shared class UschoolHomePage() extends WebPage(
+    CompoundPropertyModel(
+        ContextProvidingModel(
+            HomePageModel().Active
+        )
+    )
+) {
+    object courseList extends CourseListPanel("courseList") {
     }
     
     shared actual void onInitialize() {
         super.onInitialize();
-        add(loggedInIndicator);
-        add(loginLink);
-        add(logoutLink);
-    }
-
-    shared actual void onConfigure() {
-        super.onConfigure();
-        
-        loggedInIndicator.setVisible(sess.signedIn);
-        loginLink.setVisible(!sess.signedIn);
-        logoutLink.setVisible(sess.signedIn);
+        add(courseList);
     }
 }
 
@@ -153,6 +151,12 @@ shared class UschoolApplication() extends AuthenticatedWebApplication() {
             value user = createUser(ctx);
             user.userName = "admin";
             user.password("admin");
+            
+            for (i in 1:30) {
+                value course = createCourse(ctx);
+                course.title = "Course #``i``";
+                course.description = "Description of Course #``i``";
+            }
         }
     }
 

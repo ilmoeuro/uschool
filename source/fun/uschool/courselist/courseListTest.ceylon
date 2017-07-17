@@ -1,18 +1,3 @@
-import ceylon.test {
-    test,
-    parameters
-}
-
-import fun.uschool.course {
-    createCourse,
-    Course
-}
-import fun.uschool.feature.provider {
-    ContextProvider
-}
-import fun.uschool.util {
-    Test
-}
 /*
     uschool - worldwide learning platform
     Copyright (2017) Ilmo Euro
@@ -30,6 +15,21 @@ import fun.uschool.util {
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+import ceylon.test {
+    test,
+    parameters
+}
+
+import fun.uschool.course {
+    createCourse,
+    Course
+}
+import fun.uschool.feature.provider {
+    ContextProvider
+}
+import fun.uschool.util {
+    Test
+}
 
 {[Integer, Integer]*} numPagesParameters = {
     [0, 1],
@@ -61,7 +61,7 @@ class UserTest() extends Test() {
                 createCourse(ctx);
             }
             
-            value courseList = CourseList().Active(ctx);
+            value courseList = PassiveCourseList().Active(ctx);
             
             assert (courseList.numPages == expectedNumPages);
 		}
@@ -79,8 +79,8 @@ class UserTest() extends Test() {
                 course.title = "Course #``i``";
             }
             
-            value courseList = CourseList().Active(ctx);
-            courseList.pageNumber = pageNumber;
+            value courseList = PassiveCourseList().Active(ctx);
+            courseList.page = Page(pageNumber);
             value actualCourseTitles = courseList.courses.map(Course.title);
             assert ([*actualCourseTitles] == [*expectedCourseTitles]);
 		}

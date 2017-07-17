@@ -15,16 +15,18 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-native("jvm")
-module fun.uschool.gui.webapp "1.0.0" {
-	import ceylon.interop.java "1.3.2";
+import org.apache.wicket.markup.html.panel {
+    GenericPanel
+}
+import org.apache.wicket.model {
+    CompoundPropertyModel
+}
 
-	shared import java.base "8";
+shared class CompoundPanel<Model>(id) extends GenericPanel<Model>(id) {
+    String id;
 
-	shared import fun.uschool.feature.provider "1.0.0";
-	shared import fun.uschool.user "1.0.0";
-	shared import fun.uschool.course "1.0.0";
-	shared import fun.uschool.courselist "1.0.0";
-	shared import fun.uschool.util "1.0.0";
-	shared import fun.uschool.wicket "1.0.0";
+    shared actual default void onInitialize() {
+        super.onInitialize();
+        this.model = CompoundPropertyModel(this.model);
+    }
 }
