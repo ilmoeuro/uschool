@@ -72,3 +72,19 @@ shared T namedValue<T>(Class<T> cls, String name) {
         throw InvalidNamedValueException(cls, name);
     }
 }
+
+shared T? cast<out T>(Object val) given T satisfies Object {
+    if (is T val) {
+        return val;
+    } else {
+        return null;
+    }
+}
+
+shared Out? nullSafe<in In, out Out>(Out(In) func)(In? val) {
+    if (exists val) {
+        return func(val); 
+    } else {
+        return null;
+    }
+}

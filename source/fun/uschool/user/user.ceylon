@@ -68,12 +68,6 @@ import javax.persistence {
 
 shared alias User => UserEntity.Active;
 
-shared class InvalidRoleNameException() extends Exception(
-    "Invalid role name"
-) {
-    
-}
-
 shared class Role of locked | guest | student | moderator | admin {
     
     shared static Role ofName(String name) => namedValue(`Role`, name);
@@ -93,8 +87,18 @@ shared class Role of locked | guest | student | moderator | admin {
     string => "Role(``name``)";
 }
 
-shared User createUser(Context ctx) =>
-    UserEntity.createUser(ctx);
+
+shared User createUser(Context context) {
+    assert (is AppContext context);
+    
+    value entity = UserEntity();
+    context.entityManager.persist(entity);
+    context.entityManager.flush();
+
+    value user = entity.Active(context);
+    user.init();
+    return user;
+}
 
 shared User? findUserByName(Context ctx, String userName) {
     assert (is AppContext ctx);
@@ -153,20 +157,7 @@ namedQueries {
                 u.userName = :userName";
     }
 }
-shared class UserEntity {
-
-    shared static User createUser(Context context) {
-        assert (is AppContext context);
-        
-        value entity = UserEntity.withDefaults();
-        context.entityManager.persist(entity);
-        context.entityManager.flush();
-
-        value user = entity.Active(context);
-        user.init();
-        return user;
-    }
-
+shared sealed class UserEntity() {
     id generatedValue { strategy=identity; }
     late Integer id;
 
@@ -181,10 +172,6 @@ shared class UserEntity {
     variable Integer passwordIterations = 0;
     
     transient variable Anything()? onPreUpdate = null;
-
-    new withDefaults() {
-        
-    }
     
     preUpdate
     shared void runPreUpdateCallback() {

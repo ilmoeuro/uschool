@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="com.redhat.ceylon.eclipse.ui.launching.ceylonJavaModule">
+<booleanAttribute key="CEYLON_LAUNCH_VERBOSE" value="false"/>
+<stringAttribute key="CEYLON_MODULE" value="fun.uschool.server/1.0.0"/>
+<stringAttribute key="CEYLON_TOPLEVEL" value="run - default"/>
+<stringAttribute key="bad_container_name" value="/uschool.run"/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/uschool"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="4"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="uschool"/>
+</launchConfiguration>

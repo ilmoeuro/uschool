@@ -32,10 +32,10 @@ import fun.uschool.feature.api {
     Context
 }
 import org.apache.wicket {
-    Session
+    WicketSession = Session
 }
 
-shared class UschoolSession(Request req) extends AuthenticatedWebSession(req) {
+shared class Session(Request req) extends AuthenticatedWebSession(req) {
     variable User(Context)? loadUser = null;
     
     shared actual Boolean authenticate(String? username, String? password) {
@@ -66,9 +66,9 @@ shared class UschoolSession(Request req) extends AuthenticatedWebSession(req) {
     shared actual Roles roles => Roles(Roles.admin);
 }
 
-UschoolSession sess {
-    Session? session = Session.get();
+Session sess {
+    WicketSession? session = WicketSession.get();
     "Called from wrong application"
-    assert (is UschoolSession session);
+    assert (is Session session);
     return session;
 }

@@ -5,11 +5,18 @@
     </head>
     <body>
     <wicket:panel>
-        <div class="CourseList">
-			<select wicket:id="page"></select>
+        <div class="CourseListPanel">
+            <form wicket:id="form">
+				<select wicket:id="page"></select>
+				<noscript>
+				    <button type="submit">Go!</button>
+				</noscript>
+			</form>
 			<div wicket:id="coursesList">
 				<div>
-					<span wicket:id="title"></span>
+					<a wicket:id="courseLink">
+					   <span wicket:id="title"></span>
+				   </a>
 				</div>
 				<div>
 					<span wicket:id="description"></span>

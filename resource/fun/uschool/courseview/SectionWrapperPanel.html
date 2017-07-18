@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TODO supply a title</title>
+    </head>
+    <body>
+    <wicket:panel>
+        <div class="SectionWrapperPanel">
+            <div class="heading" wicket:id="heading">
+                <h1 wicket:id="heading.content"></h1>
+            </div>
+            <div class="paragraph" wicket:id="paragraph">
+                <p wicket:id="paragraph.content"></p>
+            </div>
+            <div class="picture" wicket:id="picture">
+                <img wicket:id="picture.source" />
+            </div>
+            <div class="multiSelectExercise" wicket:id="multiSelectExercise">
+				<div wicket:id="multiSelectExercise.choicesList">
+					<input type="checkbox" wicket:id="correctness" />
+					<label wicket:id="choice"></label>
+				</div>
+            </div>
+		</div>
+    </wicket:panel>
+</body>
+</html>

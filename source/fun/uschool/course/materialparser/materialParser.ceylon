@@ -23,7 +23,7 @@ import ceylon.test {
 }
 
 import fun.uschool.course {
-    Title,
+    Heading,
     Section,
     ExerciseField,
     Picture,
@@ -60,13 +60,13 @@ import org.jparsec.pattern {
 shared Parser<Void> emptyLine =
         literal(" ").skipMany().followedBy(literal("\n"));
 
-shared Parser<Title> title =
+shared Parser<Heading> heading =
     literal(" ").many()
         .followedBy(literal("#"))
         .followedBy(literal(" ").many())
         .next(
             isChar(notAmong("\n")).many().source()
-            .map((v) => Title(v.string)))
+            .map((v) => Heading(v.string)))
         .followedBy(emptyLine.many());
 
 // TODO handle empty lines in paragraphs
@@ -115,21 +115,21 @@ shared Parser<MultiSelectExercise> multiSelectExercise =
         .map((fields) => MultiSelectExercise(CeylonList(fields)));
 
 shared Parser<out Section> section =
-        or(title, paragraph, picture, multiSelectExercise);
+        or(heading, paragraph, picture, multiSelectExercise);
 
 test
-shared void testTitleWithoutWhitespace() {
+shared void testHeadingWithoutWhitespace() {
     value input = "#title";
-    value expected = Title("title");
-    value actual = title.parse(input);
+    value expected = Heading("title");
+    value actual = heading.parse(input);
     assert (actual == expected);
 }
 
 test
-shared void testTitleWithWhitespace() {
+shared void testHeadingWithWhitespace() {
     value input = "  # title";
-    value expected = Title("title");
-    value actual = title.parse(input);
+    value expected = Heading("title");
+    value actual = heading.parse(input);
     assert (actual == expected);
 }
 
@@ -191,11 +191,11 @@ shared void testCombination() {
     value actual = CeylonList(section.many().parse(sample));
     
     value expected = {
-        Title("this is title"),
+        Heading("this is title"),
         Paragraph("this is paragraph\nparagraph continues"),
         Paragraph("another paragraph\nparagraph continues"),
         Picture("picId"),
-        Title("this is another title"),
+        Heading("this is another title"),
         Paragraph("paragraph continues right after"),
         MultiSelectExercise {
             ExerciseField("incorrect field", incorrect),

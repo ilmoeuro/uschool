@@ -15,6 +15,10 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+import ceylon.collection {
+    ArrayList
+}
+
 import fun.uschool.course {
     listCoursesPage,
     Course,
@@ -35,11 +39,19 @@ import java.util {
     }
 }
 
+import org.apache.wicket.markup.head {
+    IHeaderResponse,
+    CssHeaderItem
+}
 import org.apache.wicket.markup.html.basic {
     Label
 }
 import org.apache.wicket.markup.html.form {
-    DropDownChoice
+    DropDownChoice,
+    Form
+}
+import org.apache.wicket.markup.html.link {
+    Link
 }
 import org.apache.wicket.markup.html.list {
     PropertyListView,
@@ -50,10 +62,6 @@ import org.apache.wicket.model {
 }
 import org.apache.wicket.request.resource {
     ResourceReference
-}
-import org.apache.wicket.markup.head {
-    IHeaderResponse,
-    CssHeaderItem
 }
 
 shared class Page(index) {
@@ -73,6 +81,8 @@ shared class PassiveCourseList() {
     Integer pageSize = 10;
     
     shared class Active(Context ctx) {
+        value courseSelectedListeners = ArrayList<Anything(Course)>();
+        
         shared {Course*} courses =>
             listCoursesPage(ctx, outer.pageNumber, pageSize);
         
@@ -92,30 +102,26 @@ shared class PassiveCourseList() {
         
         shared JList<Page> pagesList =>
             jList (for (i in 0:numPages) Page(i));
+        
+        shared void addCourseSelectedListener(void listener(Course course)) {
+            courseSelectedListeners.add(listener);
+        }
+        
+        shared void fireCourseSelected(Course course) {
+            for (listener in courseSelectedListeners) {
+                listener(course);
+            }
+        }
     }
 }
 
 shared alias CourseList => PassiveCourseList.Active;
 
-shared class CourseListPanel(id) extends CompoundPanel<CourseList>(id) {
+shared abstract class CourseListPanel(id) extends CompoundPanel<CourseList>(id) {
     String id;
     
-    object page extends DropDownChoice<Page>("page") {
-        wantOnSelectionChangedNotifications() => true;
-    }
-    
-    object coursesList extends PropertyListView<Course>("coursesList") {
-        shared actual void populateItem(ListItem<Course> item) {
-            object title extends Label("title") {
-                
-            }
-            object description extends Label("description") {
-                
-            }
-
-            item.add(title);
-            item.add(description);
-        }
+    shared default void onCourseSelected(Course(Context) loadCourse) {
+        
     }
     
     object lessReference extends ResourceReference(
@@ -131,8 +137,38 @@ shared class CourseListPanel(id) extends CompoundPanel<CourseList>(id) {
     
     shared actual void onInitialize() {
         super.onInitialize();
+
+        object form extends Form<Object>("form") {
+            
+        }
+
+        object page extends DropDownChoice<Page>("page") {
+            wantOnSelectionChangedNotifications() => true;
+        }
+        
+        object coursesList extends PropertyListView<Course>("coursesList") {
+            shared actual void populateItem(ListItem<Course> item) {
+                Course(Context) loadCourse = item.modelObject.loader();
+                object title extends Label("title") {
+
+                }
+                object courseLink extends Link<String>("courseLink") {
+                    shared actual void onClick() {
+                        onCourseSelected(loadCourse);
+                    }
+                }
+                object description extends Label("description") {
+
+                }
+                courseLink.add(title);
+                item.add(courseLink);
+                item.add(description);
+            }
+        }
+
         page.setChoices(PropertyModel(model, "pagesList"));
-        add(page);
+        form.add(page);
+        add(form);
         add(coursesList);
     }
 }

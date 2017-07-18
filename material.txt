@@ -4,3 +4,8 @@ paragraph 1
 
 #title 2
 paragraph 2
+
+[ ] choice 1
+[ ] choice 2
+[x] choice 3
+[ ] choice 4

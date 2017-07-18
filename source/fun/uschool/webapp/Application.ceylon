@@ -39,13 +39,16 @@ import fun.uschool.util {
     SetupContextClassLoader
 }
 
+import java.io {
+    File
+}
 import java.lang {
     Class
 }
 
 import org.apache.wicket {
     Page,
-    Application
+    WicketApplication=Application
 }
 import org.apache.wicket.authroles.authentication {
     AuthenticatedWebApplication,
@@ -58,10 +61,10 @@ import org.apache.wicket.markup.html {
     WebPage
 }
 
-shared class UschoolApplication() extends AuthenticatedWebApplication() {
+shared class Application() extends AuthenticatedWebApplication() {
     shared ContextProvider contextProvider;
     
-    try (SetupContextClassLoader(javaClass<UschoolApplication>().classLoader)) {
+    try (SetupContextClassLoader(javaClass<Application>().classLoader)) {
         contextProvider = ContextProvider {
             subject = `class`;
             commit = true;
@@ -83,21 +86,22 @@ shared class UschoolApplication() extends AuthenticatedWebApplication() {
                 value course = createCourse(ctx);
                 course.title = "Course #``i``";
                 course.description = "Description of Course #``i``";
+                course.materialFolder = File(".");
             }
         }
     }
 
     shared actual Class<out Page> homePage =>
-            javaClass<UschoolHomePage>();
+            javaClass<HomePage>();
     shared actual Class<out WebPage> signInPageClass =>
             javaClass<SignInPage>();
     shared actual Class<out AbstractAuthenticatedWebSession> webSessionClass =>
-            javaClass<UschoolSession>();
+            javaClass<Session>();
 }
 
-UschoolApplication app {
-    Application? app = Application.get();
+Application app {
+    WicketApplication? app = WicketApplication.get();
     "Called from wrong application"
-    assert (is UschoolApplication app);
+    assert (is Application app);
     return app;
 }

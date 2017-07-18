@@ -60,16 +60,16 @@ import javax.persistence {
 
 String materialFileName = "material.txt";
 
-shared interface Section of Title | Paragraph | Picture | MultiSelectExercise {
+shared interface Section of Heading | Paragraph | Picture | MultiSelectExercise {
 }
 
-shared class Title(content) satisfies Section {
+shared class Heading(content) satisfies Section {
     shared String content;
     
     string => "Title(``content``)";
     
     equals(Object that) => 
-        if (is Title that)
+        if (is Heading that)
             then content == that.content
             else false;
     
@@ -93,6 +93,10 @@ shared class Picture(identifier) satisfies Section {
     String identifier;
 
     string => "Picture(``identifier``)";
+    
+    shared String source =>
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP" + 
+        "///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
     equals(Object that) => 
         if (is Picture that)
@@ -151,6 +155,18 @@ shared class MultiSelectExercise(choices) satisfies Section {
 
 shared alias Course => CourseEntity.Active;
 
+shared Course createCourse(Context context) {
+    assert (is AppContext context);
+    
+    value entity = CourseEntity();
+    context.entityManager.persist(entity);
+    context.entityManager.flush();
+
+    value course = entity.Active(context);
+    course.init();
+    return course;
+}
+
 shared {Course*} listCoursesPage(
     Context ctx,
     Integer pageNum,
@@ -183,9 +199,6 @@ shared Integer countCourses(Context ctx) {
     return result.longValue();
 }
 
-shared Course createCourse(Context ctx) =>
-    CourseEntity.createCourse(ctx);
-
 entity {
     name = "Course";
 }
@@ -211,19 +224,7 @@ namedQueries {
                 Course c";
     }
 }
-shared class CourseEntity {
-
-    shared static Course createCourse(Context context) {
-        assert (is AppContext context);
-        
-        value entity = CourseEntity.withDefaults();
-        context.entityManager.persist(entity);
-        context.entityManager.flush();
-
-        value course = entity.Active(context);
-        course.init();
-        return course;
-    }
+shared sealed class CourseEntity() {
     
     id generatedValue { strategy = identity; }
     late Integer id;
@@ -235,10 +236,6 @@ shared class CourseEntity {
     variable Instant modified = Instant.epoch;
     
     transient variable Anything()? onPreUpdate = null;
-
-    new withDefaults() {
-        
-    }
 
     preUpdate
     shared void runPreUpdateCallback() {

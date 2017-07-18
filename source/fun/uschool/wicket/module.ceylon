@@ -23,5 +23,6 @@ module fun.uschool.wicket "1.0.0" {
 
 	import ceylon.interop.java "1.3.2";
 	import ceylon.buffer "1.3.2";
+	import ceylon.file "1.3.2";
 	import maven:"com.github.sommeri":"less4j" "1.17.2";
 }
