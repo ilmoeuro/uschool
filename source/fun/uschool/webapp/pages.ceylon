@@ -46,16 +46,6 @@ shared class CoursePageModel(loadCourse) {
     }
 }
 
-shared class HomePageModel() {
-    value courseList = PassiveCourseList();
-    
-    shared class Active(Context ctx) {
-
-        shared CourseList courseList = outer.courseList.Active(ctx);
-
-    }
-}
-
 shared class CoursePage(loadCourse) extends BasePage<CoursePageModel.Active>(
     CompoundPropertyModel(
         ContextProvidingModel(
@@ -72,6 +62,16 @@ shared class CoursePage(loadCourse) extends BasePage<CoursePageModel.Active>(
         }
 
         add(courseView);
+    }
+}
+
+shared class HomePageModel() {
+    value courseList = PassiveCourseList();
+    
+    shared class Active(Context ctx) {
+
+        shared CourseList courseList = outer.courseList.Active(ctx);
+
     }
 }
 

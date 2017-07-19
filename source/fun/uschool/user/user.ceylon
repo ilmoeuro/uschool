@@ -17,7 +17,8 @@
 */
 import ceylon.interop.java {
     javaString,
-    createJavaByteArray
+    createJavaByteArray,
+    javaClass
 }
 
 import com.moandjiezana.toml {
@@ -244,5 +245,6 @@ shared sealed class UserEntity() {
 service (`interface ModelClassNameProvider`)
 shared class UserEntityModelClassNameProvider()
         satisfies ModelClassNameProvider {
-    shared actual String modelClassName => "fun.uschool.user.UserEntity";
+    shared actual String modelClassName =>
+            javaClass<UserEntity>().canonicalName;
 }

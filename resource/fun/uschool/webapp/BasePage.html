@@ -5,6 +5,15 @@
         <meta charset="utf8" />
     </head>
     <body class="BasePage">
+        <div class="loginWidget" wicket:id="loginWidget">
+            <div wicket:id="signInPanel"></div>
+        </div>
+        <div class="loggedInWidget" wicket:id="loggedInWidget">
+            <div wicket:id="loggedInPerson"></div>
+            <form wicket:id="logoutForm">
+                <button type="submit">Log out</button>
+            </form>
+        </div>
         <wicket:child />
     </body>
 </html>

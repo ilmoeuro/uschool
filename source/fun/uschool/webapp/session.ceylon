@@ -37,6 +37,7 @@ import org.apache.wicket {
 
 shared class Session(Request req) extends AuthenticatedWebSession(req) {
     variable User(Context)? loadUser = null;
+    variable String userName = "";
     
     shared actual Boolean authenticate(String? username, String? password) {
         if (exists username, exists password) {
@@ -44,6 +45,7 @@ shared class Session(Request req) extends AuthenticatedWebSession(req) {
                 User? user = findUserByName(ctx, username);
                 if (exists user, user.hasPassword(password)) {
                     loadUser = user.loader();
+                    userName = user.userName;
                     return true;
                 }
             }
@@ -53,6 +55,7 @@ shared class Session(Request req) extends AuthenticatedWebSession(req) {
     
     shared actual void signOut() {
         loadUser = null;
+        userName = "";
     }
     
     shared User? loadCurrentUser(Context ctx) {
@@ -62,6 +65,8 @@ shared class Session(Request req) extends AuthenticatedWebSession(req) {
             return null;
         }
     }
+    
+    shared String currentUserName => userName;
 
     shared actual Roles roles => Roles(Roles.admin);
 }

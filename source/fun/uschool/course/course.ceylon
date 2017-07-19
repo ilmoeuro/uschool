@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 import ceylon.interop.java {
-    CeylonIterable
+    CeylonIterable,
+    javaClass
 }
 
 import fun.uschool.course.materialparser {
@@ -34,12 +35,12 @@ import fun.uschool.util {
     namedValue
 }
 
-import java.lang {
-    JLong = Long
-}
 import java.io {
     File,
     FileReader
+}
+import java.lang {
+    JLong=Long
 }
 import java.time {
     Instant
@@ -60,7 +61,11 @@ import javax.persistence {
 
 String materialFileName = "material.txt";
 
-shared interface Section of Heading | Paragraph | Picture | MultiSelectExercise {
+shared interface Section of Heading | Paragraph | Picture | Exercise {
+}
+
+shared interface Exercise of MultiSelectExercise satisfies Section {
+    
 }
 
 shared class Heading(content) satisfies Section {
@@ -94,6 +99,7 @@ shared class Picture(identifier) satisfies Section {
 
     string => "Picture(``identifier``)";
     
+    // 1x1 transparent gif
     shared String source =>
         "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP" + 
         "///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
@@ -140,7 +146,7 @@ shared class ExerciseField(choice, correctness) {
     hash => choice.hash * 37 + correctness.hash;
 }
 
-shared class MultiSelectExercise(choices) satisfies Section {
+shared class MultiSelectExercise(choices) satisfies Exercise {
     shared {ExerciseField*} choices;
 
     string => "MultiSelectExercise(``choices``)";
@@ -297,5 +303,6 @@ shared sealed class CourseEntity() {
 service (`interface ModelClassNameProvider`)
 shared class CourseEntityModelClassNameProvider()
         satisfies ModelClassNameProvider {
-    shared actual String modelClassName => "fun.uschool.course.CourseEntity";
+    shared actual String modelClassName =>
+            javaClass<CourseEntity>().canonicalName;
 }
