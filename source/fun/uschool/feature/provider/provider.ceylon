@@ -69,7 +69,7 @@ import javax.persistence {
     ValidationMode
 }
 import javax.persistence.spi {
-    PersistenceUnitInfo,
+    JpaPersistenceUnitInfo = PersistenceUnitInfo,
     ClassTransformer,
     PersistenceUnitTransactionType
 }
@@ -86,9 +86,9 @@ import org.hibernate.jpa {
     HibernatePersistenceProvider
 }
 
-class UschoolPersistenceUnitInfo(
+class PersistenceUnitInfo(
     subject
-) satisfies PersistenceUnitInfo {
+) satisfies JpaPersistenceUnitInfo {
     ClassOrInterfaceDeclaration subject;
     shared actual JList<JString> managedClassNames;
     shared actual ClassLoader classLoader;
@@ -205,7 +205,7 @@ shared class ContextProvider(
     EntityManagerFactory emf =
             HibernatePersistenceProvider()
             .createContainerEntityManagerFactory(
-                UschoolPersistenceUnitInfo(subject),
+                PersistenceUnitInfo(subject),
                 hibernateConfig(config)
             );
 
@@ -217,7 +217,7 @@ shared class ContextProvider(
         shared actual Toml config = outer.config;
         
         entityManager.transaction.begin();
-
+        
         shared actual void destroy(Throwable? error) {
             if (!exists error, outer.commit) {
                 commit();

@@ -20,7 +20,7 @@ import de.agilecoders.wicket.webjars.request.resource {
 }
 
 import fun.uschool.wicket {
-    LessResource
+    LessResourceReference
 }
 
 import org.apache.wicket.markup.head {
@@ -33,36 +33,25 @@ import org.apache.wicket.markup.html {
 import org.apache.wicket.model {
     IModel
 }
-import org.apache.wicket.request.resource {
-    ResourceReference
-}
 
 shared abstract class BasePage<ModelType>(model) extends WebPage(model)
         given ModelType satisfies Object {
     shared IModel<ModelType> model;
     shared ModelType modelObject => model.\iobject;
 
-    object pureTheme extends ResourceReference(
-        `BasePage<Object>`,
-        "pure-theme-uschool.less"
-    ) {
-        resource = LessResource(`module`, "pure-theme-uschool.less");
-    }
-
-    object basePageLess extends ResourceReference(
-        `BasePage<Object>`,
-        "BasePage.less"
-    ) {
-        resource = LessResource(`module`, "BasePage.less");
-    }
-
     value pure =
         WebjarsCssResourceReference("purecss/1.0.0/build/pure-min.css");
+
+    value pureTheme =
+        LessResourceReference(`class`, "pure-theme-uschool.less");
+
+    value basePageStyle =
+        LessResourceReference(`class`, "BasePage.less");
     
     shared actual void renderHead(IHeaderResponse response) {
         super.renderHead(response);
         response.render(CssHeaderItem.forReference(pure));
         response.render(CssHeaderItem.forReference(pureTheme));
-        response.render(CssHeaderItem.forReference(basePageLess));
+        response.render(CssHeaderItem.forReference(basePageStyle));
     }
 }

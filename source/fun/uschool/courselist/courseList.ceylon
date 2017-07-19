@@ -102,16 +102,6 @@ shared class PassiveCourseList() {
         
         shared JList<Page> pagesList =>
             jList (for (i in 0:numPages) Page(i));
-        
-        shared void addCourseSelectedListener(void listener(Course course)) {
-            courseSelectedListeners.add(listener);
-        }
-        
-        shared void fireCourseSelected(Course course) {
-            for (listener in courseSelectedListeners) {
-                listener(course);
-            }
-        }
     }
 }
 
@@ -121,7 +111,7 @@ shared abstract class CourseListPanel(id) extends CompoundPanel<CourseList>(id) 
     String id;
     
     shared default void onCourseSelected(Course(Context) loadCourse) {
-        
+
     }
     
     object lessReference extends ResourceReference(

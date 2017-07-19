@@ -22,11 +22,13 @@ import ceylon.file {
     parsePath
 }
 import ceylon.interop.java {
+    javaClassFromDeclaration,
     createJavaByteArray,
     javaString
 }
 import ceylon.language.meta.declaration {
-    Module
+    Module,
+    ClassDeclaration
 }
 
 import com.github.sommeri.less4j {
@@ -54,7 +56,8 @@ import org.apache.wicket.request.resource {
     },
     IResource {
         Attributes
-    }
+    },
+    ResourceReference
 }
 import org.apache.wicket.request.resource.caching {
     IStaticCacheableResource
@@ -150,4 +153,14 @@ shared class LessResource(Module mod, String path)
     cacheKey => javaString(mod.qualifiedName + "::" + path);
     
     cachingEnabled => true;
+}
+
+shared class LessResourceReference(decl, path) extends ResourceReference(
+    javaClassFromDeclaration(decl),
+    path
+) {
+    ClassDeclaration decl;
+    String path;
+
+    resource = LessResource(decl.containingModule, path);
 }
