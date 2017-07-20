@@ -19,6 +19,10 @@ import ceylon.interop.java {
     javaClass
 }
 
+import com.moandjiezana.toml {
+    Toml
+}
+
 import de.agilecoders.wicket.webjars {
     WicketWebjars
 }
@@ -43,12 +47,20 @@ import java.io {
     File
 }
 import java.lang {
-    Class
+    Class,
+    IllegalStateException,
+    JBoolean = Boolean {
+        jTrue = \iTRUE
+    }
 }
 
 import org.apache.wicket {
     Page,
-    WicketApplication=Application
+    WicketApplication=Application,
+    RuntimeConfigurationType {
+        deployment,
+        development
+    }
 }
 import org.apache.wicket.authroles.authentication {
     AuthenticatedWebApplication,
@@ -61,17 +73,45 @@ import org.apache.wicket.markup.html {
     WebPage
 }
 
+suppressWarnings("expressionTypeNothing")
+void errorExit() {
+    process.exit(1);
+}
+
 shared class Application() extends AuthenticatedWebApplication() {
-    shared ContextProvider contextProvider;
+    shared late ContextProvider contextProvider;
     
-    try (SetupContextClassLoader(javaClass<Application>().classLoader)) {
-        contextProvider = ContextProvider {
-            subject = `class`;
-            commit = true;
-        };
-    }
+    variable Boolean devMode = true;
+    
+    shared actual RuntimeConfigurationType configurationType =>
+            if (devMode) then development else deployment;
     
     shared actual void init() {
+        Object? args = servletContext.getAttribute(commandLineArgsAttribute);
+        "Command line args should be passed by Jetty"
+        assert (is CommandLineArgs args);
+        
+        value config = Toml();
+        if (exists tomlFile = args.tomlFile) {
+            try {
+                value file = File(tomlFile);
+                config.read(file);
+            } catch (IllegalStateException ex) {
+                process.writeErrorLine("Invalid config file: ``ex.message``");
+                errorExit();
+            }
+        }
+        
+        devMode = (config.getBoolean("development") else jTrue).booleanValue();
+            
+        try (SetupContextClassLoader(javaClass<Application>().classLoader)) {
+            contextProvider = ContextProvider {
+                subject = `class`;
+                commit = true;
+                config = config;
+            };
+        }
+
         markupSettings.setStripWicketTags(true);
         
         value webjarsSettings = WebjarsSettings();

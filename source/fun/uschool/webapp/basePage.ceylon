@@ -67,18 +67,16 @@ shared abstract class BasePage<ModelType>(model) extends WebPage(model)
     value basePageStyle =
         LessResourceReference(`class`, "BasePage.less");
     
-    late WebMarkupContainer loginWidget;
-    late WebMarkupContainer loggedInWidget;
+    value loginWidget = WebMarkupContainer("loginWidget");
+    value loggedInWidget = WebMarkupContainer("loggedInWidget");
     
     shared actual default void onInitialize() {
         super.onInitialize();
 
-        loginWidget = WebMarkupContainer("loginWidget");
         value signInPanel = SignInPanel("signInPanel");
         loginWidget.add(signInPanel);
         add(loginWidget);
         
-        loggedInWidget = WebMarkupContainer("loggedInWidget");
         object loggedInPersonModel extends Model<JString>() {
             shared actual JString \iobject => javaString(sess.currentUserName);
             assign \iobject {}

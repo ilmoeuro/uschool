@@ -49,7 +49,8 @@ import javax.persistence {
     GenerationType {
         identity
     },
-    manyToOne
+    manyToOne,
+    lob
 }
 
 shared alias Answer => AnswerEntity.Active;
@@ -82,15 +83,31 @@ shared Answer createAnswer(
 
 entity { name = "Answer"; }
 shared sealed class AnswerEntity(
-    manyToOne UserEntity userEntity,
-    manyToOne CourseEntity courseEntity,
-    Integer exerciseNumber,
-    Exercise exercise,
-    String correctAnswer,
-    String answer
+    userEntity,
+    courseEntity,
+    exerciseNumber,
+    exercise,
+    correctAnswer,
+    answer
 ) {
     id generatedValue { strategy = identity; }
     late Integer id;
+
+    manyToOne
+    UserEntity userEntity;
+
+    manyToOne
+    CourseEntity courseEntity;
+
+    Integer exerciseNumber;
+
+    lob
+    Exercise exercise;
+
+    String correctAnswer;
+
+    String answer;
+
     variable Instant created = Instant.epoch;
     
     shared class Active(Context ctx) {

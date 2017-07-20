@@ -113,32 +113,34 @@ shared class SectionWrapperPanel(id, model)
         extends CompoundPanel<SectionWrapper>.withModel(id, model) {
     String id;
     IModel<SectionWrapper> model;
-    
+
+
     value heading = WebMarkupContainer("heading");
     value paragraph = WebMarkupContainer("paragraph");
     value picture = WebMarkupContainer("picture");
     value multiSelectExercise = WebMarkupContainer("multiSelectExercise");
-    
-    value headingContent = Label("heading.content");
-    value paragraphContent = Label("paragraph.content");
-    value pictureSource = ExternalImage("picture.source");
-    
-    object multiSelectExerciseChoices
-            extends PropertyListView<ExerciseFieldWrapper>(
-        "multiSelectExercise.choicesList") {
-        shared actual void populateItem(
-            ListItem<ExerciseFieldWrapper> item) {
-            object correctness extends CheckBox("correctness") {
-                enabled => false;
-            }
-            value choice = Label("choice");
-            item.add(correctness);
-            item.add(choice);
-        }
-    }
-    
+
     shared actual void onInitialize() {
         super.onInitialize();
+
+        value headingContent = Label("heading.content");
+        value paragraphContent = Label("paragraph.content");
+        value pictureSource = ExternalImage("picture.source");
+        
+        object multiSelectExerciseChoices
+                extends PropertyListView<ExerciseFieldWrapper>(
+            "multiSelectExercise.choicesList") {
+            shared actual void populateItem(
+                ListItem<ExerciseFieldWrapper> item) {
+                object correctness extends CheckBox("correctness") {
+                    enabled => false;
+                }
+                value choice = Label("choice");
+                item.add(correctness);
+                item.add(choice);
+            }
+        }
+
         heading.add(headingContent);
         paragraph.add(paragraphContent);
         picture.add(pictureSource);
@@ -164,18 +166,19 @@ shared class SectionWrapperPanel(id, model)
 shared class CourseViewPanel(id) extends CompoundPanel<CourseView>(id) {
     String id;
     
-    value title = Label("title");
-    value description = Label("description");
-    object sectionsList extends ListView<SectionWrapper>("sectionsList") {
-        shared actual void populateItem(ListItem<SectionWrapper> item) {
-            value sectionWrapperPanel =
-                SectionWrapperPanel("sectionWrapper", item.model);
-            item.add(sectionWrapperPanel);
-        }
-    }
-    
     shared actual void onInitialize() {
         super.onInitialize();
+        
+        value title = Label("title");
+        value description = Label("description");
+        object sectionsList extends ListView<SectionWrapper>("sectionsList") {
+            shared actual void populateItem(ListItem<SectionWrapper> item) {
+                value sectionWrapperPanel =
+                    SectionWrapperPanel("sectionWrapper", item.model);
+                item.add(sectionWrapperPanel);
+            }
+        }
+
         add(title);
         add(description);
         add(sectionsList);

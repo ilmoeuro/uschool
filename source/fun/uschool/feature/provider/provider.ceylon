@@ -154,8 +154,14 @@ JMap<out Object, out Object> hibernateConfig(config) {
 
     Toml dbTable = config.getTable("db") else Toml();
     
-    function conf(String key, String default) {
-        return dbTable.getString(key, default);
+    String|Boolean conf(String key, String|Boolean default) {
+        switch (default)
+        case (is String) {
+            return dbTable.getString(key, default);
+        }
+        case (is Boolean) {
+            return dbTable.getBoolean(key, JBoolean(default)).booleanValue();
+        }
     }
     
     value result = JHashMap<JString, Object>();
@@ -183,7 +189,8 @@ JMap<out Object, out Object> hibernateConfig(config) {
     put(jpaJdbcPassword, conf("password", "sa"));
     put(dialect, conf("dialect", "org.hibernate.dialect.H2Dialect"));
     put(hbm2ddlAuto, conf("hbm2ddlAuto", "create"));
-    put(showSql, false);
+    put(formatSql, conf("development", true));
+    put(showSql, conf("development", true));
     put(queryStartupChecking, false);
     put(generateStatistics, false);
     put(useReflectionOptimizer, false);

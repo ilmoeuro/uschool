@@ -19,6 +19,12 @@ import ceylon.interop.java {
     createJavaObjectArray
 }
 
+import fun.uschool.webapp {
+    parseCommandLine,
+    Usage,
+    commandLineArgsAttribute
+}
+
 import java.lang {
     System
 }
@@ -30,6 +36,9 @@ import org.eclipse.jetty.plus.webapp {
 import org.eclipse.jetty.server {
     Server
 }
+import org.eclipse.jetty.util.resource {
+    JettyResource=Resource
+}
 import org.eclipse.jetty.webapp {
     WebAppContext,
     Configuration,
@@ -39,19 +48,22 @@ import org.eclipse.jetty.webapp {
     MetaInfConfiguration,
     FragmentConfiguration
 }
-import org.eclipse.jetty.util.resource {
-    JettyResource = Resource
-}
 
 "Run the module `server`."
 shared void run() {
-    Integer port = 8888;
+    
+    value args = parseCommandLine();
+    
+    if (is Usage args) {
+        process.writeErrorLine(args);
+        return;
+    }
+    
+    Integer port = args.port else 8888;
     Server server = Server(port);
     
     WebAppContext context = WebAppContext();
     value resource = JettyResource.newClassPathResource("/webapp/");
-    print("=== BASE RESOURCE: ===");
-    print(resource);
     context.resourceBase = resource.uri.string;
     // context.baseResource = resource;
     context.configurations = createJavaObjectArray<Configuration> {
@@ -66,6 +78,7 @@ shared void run() {
         
     context.contextPath = "/";
     context.parentLoaderPriority = true;
+    context.setAttribute(commandLineArgsAttribute, args);
     server.handler = context;
     server.start();
     server.dump(System.err);

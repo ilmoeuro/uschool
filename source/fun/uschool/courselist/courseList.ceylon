@@ -15,10 +15,6 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-import ceylon.collection {
-    ArrayList
-}
-
 import fun.uschool.course {
     listCoursesPage,
     Course,
@@ -81,8 +77,6 @@ shared class PassiveCourseList() {
     Integer pageSize = 10;
     
     shared class Active(Context ctx) {
-        value courseSelectedListeners = ArrayList<Anything(Course)>();
-        
         shared {Course*} courses =>
             listCoursesPage(ctx, outer.pageNumber, pageSize);
         
